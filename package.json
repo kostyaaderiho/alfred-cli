@@ -1,0 +1,33 @@
+{
+    "name": "alfred-cli",
+    "version": "1.0.0",
+    "description": "",
+    "main": "src/index.js",
+    "bin": {
+        "alfred": "bin/alfred"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/kostyaaderiho/alfred-cli.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/kostyaaderiho/alfred-cli/issues"
+    },
+    "homepage": "https://github.com/kostyaaderiho/alfred-cli#readme",
+    "dependencies": {
+        "arg": "^4.1.0",
+        "chalk": "^2.4.2",
+        "esm": "^3.2.25",
+        "execa": "^2.0.1",
+        "inquirer": "^6.4.1",
+        "listr": "^0.14.3",
+        "ncp": "^2.0.0",
+        "pkg-install": "^1.0.0"
+    }
+}
