@@ -1,72 +1,24 @@
-import arg from 'arg';
-import inquirer from 'inquirer';
-import { createProject } from './main';
+import init from '../commands/init';
 
-function parseArgumentsIntoOptions(rawArgs) {
-    const args = arg(
-        {
-            '--git': Boolean,
-            '--yes': Boolean,
-            '--install': Boolean,
-            '-g': '--git',
-            '-y': '--yes',
-            '-i': '--isntall'
-        },
-        {
-            argv: rawArgs.slice(2)
-        }
-    );
+export async function cli(rawArgs) {
+    let args = rawArgs.slice(2);
+    let script = args[0];
+    let targetDirectory = args.slice(1)[0];
 
-    return {
-        skipPrompts: args['--yes'] || false,
-        git: args['--git'] || false,
-        template: args._[0],
-        runInstall: args['--install'] || false
-    };
-}
-
-async function promptForMissingOptions(options) {
-    const defaultTemplate = 'JavaScript';
-
-    if (options.skipPrompts) {
-        return {
-            ...options,
-            template: options.template || defaultTemplate
-        }
-    };
-
-    const questions = [];
-
-    if (!options.template) {
-        questions.push({
-            type: 'list',
-            name: 'template',
-            message: 'Please choose which project template to use',
-            choices: ['JavaScript', 'TypeScript']
-        });
+    switch (script) {
+        case 'init':
+            init({
+                targetDirectory
+            });
+            break;
+        case 'generate':
+            // TODO: generate assests command
+            break;
+        default:
+            console.log(
+                `Unknown script "${script}", perhaps you need to update "alfred-cli"`
+            );
+            console.log(`See documentation here: <link>`);
+            break;
     }
-
-    if (!options.git) {
-        questions.push({
-            type: 'confirm',
-            name: 'git',
-            message: 'Initialize a git repository?',
-            default: false
-        });
-    }
-
-    const answers = await inquirer.prompt(questions);
-
-    return {
-        ...options,
-        template: options.template || answers.template,
-        git: options.git || answers.git
-    };
-};
-
-export async function cli(args) {
-    let options = parseArgumentsIntoOptions(args);
-    options = await promptForMissingOptions(options);
-
-    await createProject(options);
 }

@@ -1,7 +1,7 @@
 {
     "name": "alfred-cli",
-    "version": "1.0.0",
-    "description": "",
+    "version": "0.1.0",
+    "description": "A CLI for bootstrap ReactJS application",
     "main": "src/index.js",
     "bin": {
         "alfred": "bin/alfred"
@@ -14,13 +14,14 @@
         "url": "git+https://github.com/kostyaaderiho/alfred-cli.git"
     },
     "keywords": [],
-    "author": "",
+    "author": "kostya.aderiho@gmail.com",
     "license": "ISC",
     "bugs": {
         "url": "https://github.com/kostyaaderiho/alfred-cli/issues"
     },
     "homepage": "https://github.com/kostyaaderiho/alfred-cli#readme",
-    "dependencies": {
+    "dependencies": {},
+    "devDependencies": {
         "arg": "^4.1.0",
         "chalk": "^2.4.2",
         "esm": "^3.2.25",
