@@ -14,16 +14,10 @@ async function copyProjectFiles({ templateDirectory, targetDirectory }) {
     });
 }
 
-export default async function(options) {
-    const currentFileDir = import.meta.url;
-
-    options = {
-        ...options,
-        targetDirectory: options.targetDirectory || process.cwd(),
-        templateDirectory: path.resolve(
-            new URL(currentFileDir).pathname.slice(1),
-            '../../templates/project'
-        )
+export async function initProject({ param: targetDirectory }) {
+    let options = {
+        templateDirectory: path.join(__dirname, '..', 'templates/project'),
+        targetDirectory: targetDirectory || process.cwd()
     };
 
     try {
