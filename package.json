@@ -13,7 +13,10 @@
         "type": "git",
         "url": "git+https://github.com/kostyaaderiho/alfred-cli.git"
     },
-    "keywords": [],
+    "keywords": [
+        "CLI",
+        "ReactJS"
+    ],
     "author": "kostya.aderiho@gmail.com",
     "license": "ISC",
     "bugs": {
@@ -25,11 +28,11 @@
         "arg": "^4.1.0",
         "chalk": "^2.4.2",
         "commander": "^2.20.0",
+        "cp-file": "^7.0.0",
         "esm": "^3.2.25",
         "execa": "^2.0.1",
         "inquirer": "^6.4.1",
         "listr": "^0.14.3",
-        "ncp": "^2.0.0",
-        "pkg-install": "^1.0.0"
+        "ncp": "^2.0.0"
     }
 }
