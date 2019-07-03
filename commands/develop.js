@@ -6,14 +6,18 @@ const log = console.log;
 
 export async function startServer() {
     const targetDirectory = process.cwd();
+    const PORT = 3000;
 
+    log('\n');
     const tasks = new Listr([
         {
             title: 'Running local dev server',
-            task: () =>
+            task: () => {
                 execa('npm', ['run', 'develop'], {
                     cwd: targetDirectory
-                })
+                });
+                process.stdin.resume();
+            }
         }
     ]);
 
@@ -22,7 +26,6 @@ export async function startServer() {
         process.exit();
     });
 
-    log('Server has been started!', chalk.green.bold('DONE'));
-
-    process.exit();
+    log('\n');
+    log(`Server is running on ${PORT} port!`);
 }

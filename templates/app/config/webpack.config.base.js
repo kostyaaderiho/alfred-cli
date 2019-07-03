@@ -7,10 +7,10 @@ const webpack = require('webpack');
 const path = require('path');
 
 const aliasEntries = [
-    'components', 
-    'shared', 
-    'pages', 
-    'utils', 
+    'components',
+    'shared',
+    'pages',
+    'utils',
     'store',
     'hoc',
     'api'
@@ -22,7 +22,7 @@ const defineAlias = entries => {
     entries.forEach(entry => {
         aliases[entry] = path.resolve(__dirname, `../src/${entry}`);
     });
- 
+
     return aliases;
 }
 
@@ -32,14 +32,14 @@ module.exports = env => {
          * Entry application point
          */
         entry: {
-            app: './src/index.js'
+            app: './src/app.js'
         },
 
         /**
          * Bundle output configuration
          */
         output: {
-            path: path.resolve(__dirname, '../../dist'),
+            path: path.resolve(__dirname, '../dist'),
             filename: '[name].bundle.js'
         },
 
@@ -54,7 +54,7 @@ module.exports = env => {
                 {
                     test: /\.js$/,
                     exclude: /node_modules/,
-                    use:[{
+                    use: [{
                         loader: "babel-loader"
                     }]
                 },

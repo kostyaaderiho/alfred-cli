@@ -1,7 +1,7 @@
 {
-    "name": "reactjs-application",
-    "version": "1.0.0",
-    "description": "ReactJS application",
+    "name": "reactjs-app",
+    "version": "0.0.0",
+    "description": "Awesome ReactJS application",
     "main": "index.js",
     "scripts": {
         "develop": "webpack-dev-server --config ./config/webpack.config.dev.js --env.ENVIRONMENT=development",
@@ -21,7 +21,10 @@
             "git add"
         ]
     },
-    "keywords": [],
+    "keywords": [
+        "ReactJS",
+        "SPA"
+    ],
     "author": "kanstantsin_adzerykha@epam.com",
     "license": "ISC",
     "devDependencies": {
