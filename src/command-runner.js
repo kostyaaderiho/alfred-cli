@@ -7,19 +7,25 @@ import chalk from 'chalk';
 
 const AVAILABLE_COMMANDS = {
     init: {
-        description: 'Initialize project',
+        description: 'Initialize project in <project> directory',
+        options: [
+            {
+                name: '-f, --f',
+                description: 'Rewrite files in the target directory'
+            }
+        ],
         alias: 'i'
     },
     develop: {
         description: 'Start local dev server',
-        alias: 'd'
+        alias: 'dev'
     },
     generate: {
-        description: 'Generates and/or modifies files based on a schematic.',
+        description: 'Generates files based on a schematic',
         alias: 'g'
     },
     build: {
-        description: 'Run production build',
+        description: 'Compiles an app into an output directory named dist/',
         alias: 'b'
     }
 };
@@ -51,7 +57,7 @@ export async function runCommand(cliArgs) {
         .command('init <projectName>')
         .alias(AVAILABLE_COMMANDS.init.alias)
         .description('')
-        .option('-f, --force', AVAILABLE_COMMANDS.init.description)
+        .option(AVAILABLE_COMMANDS.init.options[0].name, AVAILABLE_COMMANDS.init.options[0].description)
         .action((projectName, options) => initProject({
             force: !!options.force,
             projectName
