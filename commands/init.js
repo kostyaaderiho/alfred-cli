@@ -45,7 +45,7 @@ async function verifyIfTargetFolderCorrect(targetDirectory, force) {
         {
             type: 'list',
             name: 'proccedWithFolder',
-            message: 'Do you wanna to procced and generate files inside?',
+            message: 'Proceed with init process? Files inside of the folder will be overwritten',
             choices: ['Yes', 'No']
         }
     ]);
@@ -56,8 +56,8 @@ async function verifyIfTargetFolderCorrect(targetDirectory, force) {
 /**
  * Copy app files into target directory
  *
- * @param {string} templateDirectory
- * @param {string} targetDirectory
+ * @param {string} templateDirectory Project template files directory
+ * @param {string} targetDirectory Target directory where filles will be copied to
  * @param {boolean} force Overwrite destination files that already exist.
  */
 async function copyAppFiles({ templateDirectory, targetDirectory, force }) {
@@ -101,7 +101,7 @@ function updateReadmeFile(projectOptions, targetDirectory) {
     });
 }
 
-async function updatePackageJsonFile(projectOptions, targetDirectory) {
+function updatePackageJsonFile(projectOptions, targetDirectory) {
     const projectPackageJSON = `${targetDirectory}/package.json`;
 
     fs.readFile(projectPackageJSON, (err, file) => {
@@ -117,10 +117,21 @@ async function updatePackageJsonFile(projectOptions, targetDirectory) {
     });
 }
 
-export async function initProject({ projectName: targetDirectory, force }) {
+/**
+ * Entry project initialization method
+ * @param {string} projectName Further project and target folder name
+ * @param {boolean} skipInstall Skipping install dependencies flag
+ * @param {boolean} force Rewrite already existing folder flag
+ */
+export async function initProject({
+    projectName: targetDirectory,
+    skipInstall,
+    force
+}) {
     let options = {
         templateDirectory: path.join(__dirname, '..', 'templates/app'),
         targetDirectory: targetDirectory || process.cwd(),
+        skipInstall,
         force
     };
 
@@ -132,6 +143,7 @@ export async function initProject({ projectName: targetDirectory, force }) {
         process.exit();
     }
 
+    // Check if folder already exist and should proceed with init project
     let proceedWithFolder = await verifyIfTargetFolderCorrect(
         options.targetDirectory,
         force
@@ -153,7 +165,8 @@ export async function initProject({ projectName: targetDirectory, force }) {
         },
         {
             title: 'Install package dependencies with npm',
-            task: () => installDependecies(options.targetDirectory)
+            task: () => installDependecies(options.targetDirectory),
+            skip: () => options.skipInstall
         }
     ]);
 

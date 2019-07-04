@@ -1,10 +1,11 @@
 import { promisify } from 'util';
-import Listr from 'listr';
 import path from 'path';
 import ncp from 'ncp';
 import fs from 'fs';
+import chalk from 'chalk';
 
 const copy = promisify(ncp);
+const log = console.log;
 
 /**
  * Copy files from template directory into the target
@@ -17,17 +18,18 @@ async function copyFiles({ templateDirectory, targetDirectory, force = false }) 
     return copy(templateDirectory, targetDirectory, {
         clobber: force
     });
-}
+};
 
 /**
- * Rename copied files in target directory with according semanticName
+ * Rename copied files in the target directory with according semanticName
  * 
  * @param {*} param0 
  */
 function renameFiles({ targetDirectory, semanticName, semantic }) {
     fs.readdirSync(targetDirectory).forEach(file => {
-        fs.rename(`${targetDirectory}/${file}`, `${targetDirectory}/${file.replace(semantic, semanticName)}`, () => {
-        });
+        let copiedFileName = `${targetDirectory}\\${file.replace(semantic, semanticName)}`;
+        fs.renameSync(`${targetDirectory}\\${file}`, `${copiedFileName}`);
+        log(`${chalk.green('CREATE')} ${chalk.white(copiedFileName)}`);
     });
 }
 
@@ -38,7 +40,7 @@ export async function generateSemantic({
 }) {
     let options = {
         templateDirectory: path.join(__dirname, '..', `templates/${semantic}${type ? '-' + type : ''}`),
-        targetDirectory: `${process.cwd()}/${semanticName}`,
+        targetDirectory: `${process.cwd()}\\${semanticName}`,
         semanticName,
         semantic,
         type
@@ -46,20 +48,11 @@ export async function generateSemantic({
 
     if (!fs.existsSync(options.targetDirectory)) {
         fs.mkdir(options.targetDirectory, () => { });
+    } else {
+        console.log(chalk.yellow(`ERROR! Schematic ${semanticName} already exists.`));
+        process.exit();
     }
 
-    let tasks = new Listr([
-        {
-            title: `Generate files for ${semantic}`,
-            task: () => {
-                copyFiles(options).then(() => {
-                    renameFiles(options);
-                });
-            }
-        }
-    ]);
-
-    await tasks.run().catch(err => {
-        console.log(err);
-    });
+    await copyFiles(options);
+    renameFiles(options);
 };

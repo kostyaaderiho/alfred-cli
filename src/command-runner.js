@@ -12,6 +12,10 @@ const AVAILABLE_COMMANDS = {
             {
                 name: '-f, --f',
                 description: 'Rewrite files in the target directory'
+            },
+            {
+                name: '--skipInstall',
+                description: 'When true, does not install dependency packages. Default false'
             }
         ],
         alias: 'i'
@@ -22,6 +26,12 @@ const AVAILABLE_COMMANDS = {
     },
     generate: {
         description: 'Generates files based on a schematic',
+        options: [
+            {
+                name: '-t, --type [type]',
+                description: 'Setup type for created copmponent (func | class). Default func'
+            }
+        ],
         alias: 'g'
     },
     build: {
@@ -56,9 +66,11 @@ export async function runCommand(cliArgs) {
     program
         .command('init <projectName>')
         .alias(AVAILABLE_COMMANDS.init.alias)
-        .description('')
+        .description(AVAILABLE_COMMANDS.init.description)
+        .option(AVAILABLE_COMMANDS.init.options[1].name, AVAILABLE_COMMANDS.init.options[1].description)
         .option(AVAILABLE_COMMANDS.init.options[0].name, AVAILABLE_COMMANDS.init.options[0].description)
         .action((projectName, options) => initProject({
+            skipInstall: !!options.skipInstall,
             force: !!options.force,
             projectName
         }));
@@ -73,7 +85,7 @@ export async function runCommand(cliArgs) {
         .command('generate <semantic> <semanticName>')
         .alias(AVAILABLE_COMMANDS.generate.alias)
         .description(AVAILABLE_COMMANDS.generate.description)
-        .option('-t, --type [componentType]', 'Define component type')
+        .option(AVAILABLE_COMMANDS.generate.options[0].name, AVAILABLE_COMMANDS.generate.options[0].description)
         .action((semantic, semanticName, options) => generateSemantic({
             type: options.type || 'func',
             semanticName,
