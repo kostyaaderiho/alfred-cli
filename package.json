@@ -1,8 +1,8 @@
 {
     "name": "alfred-cli",
-    "version": "0.1.0",
-    "description": "A CLI for bootstrap ReactJS application",
-    "main": "src/index.js",
+    "version": "0.0.0",
+    "description": "Command line tool for ReactJS Development.",
+    "main": "bin/afred.js",
     "bin": {
         "alfred": "bin/alfred"
     },
@@ -14,25 +14,39 @@
         "url": "git+https://github.com/kostyaaderiho/alfred-cli.git"
     },
     "keywords": [
-        "CLI",
-        "ReactJS"
+        "javacript",
+        "CLI"
     ],
-    "author": "kostya.aderiho@gmail.com",
+    "author": "kanstantsin_adzerykha@epam.com",
     "license": "ISC",
     "bugs": {
         "url": "https://github.com/kostyaaderiho/alfred-cli/issues"
     },
     "homepage": "https://github.com/kostyaaderiho/alfred-cli#readme",
-    "dependencies": {},
-    "devDependencies": {
-        "arg": "^4.1.0",
+    "dependencies": {
         "chalk": "^2.4.2",
         "commander": "^2.20.0",
-        "cp-file": "^7.0.0",
-        "esm": "^3.2.25",
-        "execa": "^2.0.1",
-        "inquirer": "^6.4.1",
+        "didyoumean": "^1.2.1",
+        "envinfo": "^7.3.1",
+        "execa": "^2.0.3",
+        "inquirer": "^6.5.0",
         "listr": "^0.14.3",
-        "ncp": "^2.0.0"
+        "ncp": "^2.0.0",
+        "semver": "^6.2.0"
+    },
+    "devDependencies": {
+        "html-webpack-plugin": "^3.2.0",
+        "mini-css-extract-plugin": "^0.8.0",
+        "webpack-dev-server": "^3.7.2",
+        "webpack": "^4.36.1",
+        "webpack-merge": "^4.2.1",
+        "@babel/core": "^7.4.5",
+        "@babel/plugin-proposal-class-properties": "^7.3.4",
+        "@babel/preset-env": "^7.3.4",
+        "@babel/preset-react": "^7.0.0",
+        "babel-loader": "^8.0.6"
+    },
+    "engines": {
+        "node": ">=8.9"
     }
 }

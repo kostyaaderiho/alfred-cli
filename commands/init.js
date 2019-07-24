@@ -1,11 +1,11 @@
-import { promisify } from 'util';
-import inquirer from 'inquirer';
-import chalk from 'chalk';
-import Listr from 'listr';
-import path from 'path';
-import ncp from 'ncp';
-import fs from 'fs';
-import execa from 'execa';
+const promisify = require('util').promisify;
+const inquirer = require('inquirer');
+const chalk = require('chalk');
+const Listr = require('listr');
+const execa = require('execa');
+const path = require('path');
+const ncp = require('ncp');
+const fs = require('fs');
 
 const access = promisify(fs.access);
 const copy = promisify(ncp);
@@ -95,7 +95,7 @@ function updateReadmeFile(projectOptions, targetDirectory) {
 
         let output = file.replace(/<projectName>/g, projectOptions.name);
 
-        fs.writeFile(`${targetDirectory}/README.md`, output, 'utf8', function (err) {
+        fs.writeFile(`${targetDirectory}/README.md`, output, 'utf8', err => {
             if (err) return console.log(err);
         });
     });
@@ -123,13 +123,13 @@ function updatePackageJsonFile(projectOptions, targetDirectory) {
  * @param {boolean} skipInstall Skipping install dependencies flag
  * @param {boolean} force Rewrite already existing folder flag
  */
-export async function initProject({
+module.exports = async function initProject({
     projectName: targetDirectory,
     skipInstall,
     force
 }) {
     let options = {
-        templateDirectory: path.join(__dirname, '..', 'templates/app'),
+        templateDirectory: path.join(__dirname, '..', 'blueprints/app'),
         targetDirectory: targetDirectory || process.cwd(),
         skipInstall,
         force
@@ -176,5 +176,5 @@ export async function initProject({
 
     log('\n');
     log('Project ready!', chalk.green.bold('DONE'));
-    log(`Serve your application: ${chalk.blue(`cd /${targetDirectory}`)} & run ${chalk.blue('alfred develop')}`);
+    log(`Serve your application: ${chalk.blue(`cd ./${targetDirectory}`)} & run ${chalk.blue('alfred develop')}`);
 }

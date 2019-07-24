@@ -1,45 +1,24 @@
-const ReactLoadablePlugin = require('react-loadable/webpack').ReactLoadablePlugin;
-const WebpackAssetsManifest = require('webpack-assets-manifest');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const htmlWebpackPlugin = require('html-webpack-plugin');
 const merge = require("webpack-merge");
-const webpack = require('webpack');
 const path = require('path');
-
-const aliasEntries = [
-    'components', 
-    'shared', 
-    'pages', 
-    'utils', 
-    'store',
-    'hoc',
-    'api'
-];
-
-const defineAlias = entries => {
-    const aliases = {};
-
-    entries.forEach(entry => {
-        aliases[entry] = path.resolve(__dirname, `../src/${entry}`);
-    });
- 
-    return aliases;
-}
 
 module.exports = env => {
     return merge([{
+        mode: 'development',
+
         /**
          * Entry application point
          */
         entry: {
-            app: './src/index.js'
+            app: ['./src/app.js']
         },
 
         /**
          * Bundle output configuration
          */
         output: {
-            path: path.resolve(__dirname, '../../dist'),
+            path: path.resolve(__dirname, '../dist'),
             filename: '[name].bundle.js'
         },
 
@@ -54,7 +33,7 @@ module.exports = env => {
                 {
                     test: /\.js$/,
                     exclude: /node_modules/,
-                    use:[{
+                    use: [{
                         loader: "babel-loader"
                     }]
                 },
@@ -91,15 +70,6 @@ module.exports = env => {
             ]
         },
 
-        resolve: {
-            /**
-             * Define aliases
-             * 
-             * Output represented as an object with the following fields: [aliasName]: aliasPath
-             */
-            alias: defineAlias(aliasEntries)
-        },
-
         plugins: [
             /**
              * Plugin: HTMLWebpackPlugin
@@ -111,25 +81,7 @@ module.exports = env => {
             new htmlWebpackPlugin({
                 title: 'ReactJS global mentoring application.',
                 template: "./src/index.html"
-            }),
-
-
-            /**
-             * Plugin: DefinePlugin
-             * 
-             * Description: Allows to define environment variables that can be used on client and server sides;
-             * 
-             * See: https://webpack.js.org/plugins/define-plugin/
-             */
-            new webpack.DefinePlugin({
-                'ENVIRONMENT': JSON.stringify(process.env.ENVIRONMENT)
-            }),
-
-            new ReactLoadablePlugin({
-                filename: path.resolve(__dirname, '../../dist/react-loadable.json'),
-            }),
-
-            new WebpackAssetsManifest({})
+            })
         ]
     }]);
 };

@@ -1,1 +1,37 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+
+# node-waf configuration
+.lock-wscript
+
+# Compiled binary addons (http://nodejs.org/api/addons.html)
+build/Release
+
+# Dependency directory
+# https://docs.npmjs.com/misc/faq#should-i-check-my-node-modules-folder-into-git
 node_modules
+
+# Compiled application
+dist
+
+# Node.js directory
+node
+
+# IDE specific folders
+.idea
+.history
+
+# Maven target directory
+target
+
+# Other
+.iml
+.nyc_output
+coverage

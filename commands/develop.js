@@ -1,31 +1,49 @@
-import execa from 'execa';
-import Listr from 'listr';
-import chalk from 'chalk';
+const config = require('../blueprints/config/webpack/webpack.config.base');
+const WebpackDevServer = require('webpack-dev-server');
+const webpack = require('webpack');
+const chalk = require('chalk');
+const path = require('path');
 
-const log = console.log;
+/**
+ * Setup webpackDevServer from target repository with set configiration options
+ * 
+ * The command allow to define:
+ * 
+ * @param {string} contentBase The webpack-dev-server will serve the files in the current directory.
+ * @param {number} port Local dev server port.
+ * @param {boolean} open Open target URL in the default browser.
+ * @param {boolean} hot Load the updated modules and inject them into a running app without full page reaload.
+ * 
+ * webpackDevServer documentation: https://github.com/webpack/docs/wiki/webpack-dev-server
+ */
+module.exports = function startServer({
+    contentBase = path.join(process.cwd(), 'src'),
+    port = 3000,
+    open = true,
+    hot = true
+    // todo: proxy, hot module replacement history-api-fallback
+} = {}) {
+    let webpackConfig = config(process.env);
+    let webpackDevServerConfig = {
+        historyApiFallback: true,
+        inline: true,
+        contentBase,
+        port,
+        open,
+        hot
+    };
 
-export async function startServer() {
-    const targetDirectory = process.cwd();
-    const PORT = 3000;
+    webpackConfig.entry.app.unshift(`webpack-dev-server/client?http://localhost:${webpackDevServerConfig.port}/`);
 
-    log('\n');
-    const tasks = new Listr([
-        {
-            title: 'Running local dev server',
-            task: () => {
-                execa('npm', ['run', 'develop'], {
-                    cwd: targetDirectory
-                });
-                process.stdin.resume();
-            }
-        }
-    ]);
+    const compiler = webpack(webpackConfig);
+    const server = new WebpackDevServer(compiler, webpackDevServerConfig);
 
-    await tasks.run().catch(err => {
-        log('Start has been failed', chalk.red.bold('FAILED'));
-        process.exit();
+    server.listen(webpackDevServerConfig.port, 'localhost', err => {
+        if (err) {
+            console.log(err);
+            process.exit(1);
+        };
+
+        console.log(chalk.cyan(`Server is started on ${webpackDevServerConfig.port} port!`));
     });
-
-    log('\n');
-    log(`Server is running on ${PORT} port!`);
-}
+};

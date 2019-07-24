@@ -1,8 +1,8 @@
-import { promisify } from 'util';
-import path from 'path';
-import ncp from 'ncp';
-import fs from 'fs';
-import chalk from 'chalk';
+const promisify = require('util').promisify;
+const path = require('path');
+const ncp = require('ncp');
+const fs = require('fs');
+const chalk = require('chalk');
 
 const copy = promisify(ncp);
 const log = console.log;
@@ -33,13 +33,13 @@ function renameFiles({ targetDirectory, semanticName, semantic }) {
     });
 }
 
-export async function generateSemantic({
+module.exports = async function generateSemantic({
     semanticName,
     semantic,
     type
 }) {
     let options = {
-        templateDirectory: path.join(__dirname, '..', `templates/${semantic}${type ? '-' + type : ''}`),
+        templateDirectory: path.join(__dirname, '..', `blueprints/components/${semantic}${type ? '-' + type : ''}`),
         targetDirectory: `${process.cwd()}\\${semanticName}`,
         semanticName,
         semantic,

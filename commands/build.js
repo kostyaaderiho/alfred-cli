@@ -1,6 +1,7 @@
-import execa from 'execa';
-import chalk from 'chalk';
-import Listr from 'listr';
+
+const execa = require('execa');
+const chalk = require('chalk');
+const Listr = require('listr');
 
 const log = console.log;
 
@@ -16,7 +17,7 @@ async function runBuild(targetDirectory) {
     return buildResults;
 }
 
-export async function build() {
+module.exports = async function build() {
     const targetDirectory = process.cwd();
 
     log('\n');
