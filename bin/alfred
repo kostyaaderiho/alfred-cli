@@ -1,7 +1,5 @@
 #! /usr/bin/env node
 
-'use strict'
-
 const requiredVersion = require('../package.json').engines.node;
 const loadCommand = require('../util/loadCommand');
 const didYouMean = require('didyoumean');
@@ -9,72 +7,117 @@ const program = require('commander');
 const semver = require('semver');
 const chalk = require('chalk');
 
-function checkNodeVersion(wanted, id) {
-    if (!semver.satisfies(process.version, wanted)) {
-        console.log(chalk.red(
-            'You are using Node ' + process.version + ', but this version of ' + id +
-            ' requires Node ' + wanted + '.\nPlease upgrade your Node version.'
-        ));
-        process.exit(1);
-    }
-};
-
-function suggestCommands(cmd) {
-    const availableCommands = program.commands.map(cmd => cmd._name);
-
-    const suggestion = didYouMean(cmd, availableCommands);
-
-    if (suggestion) {
-        console.log(`  ` + chalk.red(`Did you mean ${chalk.yellow(suggestion)}?`))
-    }
-};
-
 checkNodeVersion(requiredVersion, 'alfred-cli');
 
 if (semver.satisfies(process.version, '9.x')) {
-    console.log(chalk.red(
-        `You are using Node ${process.version}.\n` +
-        `Node.js 9.x has already reached end-of-life and will not be supported in future major releases.\n` +
-        `It's strongly recommended to use an active LTS version instead.`
-    ));
-};
+    console.log(
+        chalk.red(
+            `You are using Node ${process.version}.\n` +
+                `Node.js 9.x has already reached end-of-life and will not be supported in future major releases.\n` +
+                `It's strongly recommended to use an active LTS version instead.`
+        )
+    );
+}
+
+runCommand(process.argv);
 
 /**
- * Run a command
- * 
- * @param {array} cliArgs Raw unparsed arguments 
- * @param {object} commands The map of supported commands
+ * Verify that locally installed NodeJS matches required version
+ *
+ * @param {string} wanted Required NodeJS version
+ * @param {string} id Locally installed NodeJS version
+ */
+function checkNodeVersion(wanted, id) {
+    if (!semver.satisfies(process.version, wanted)) {
+        console.log(
+            chalk.red(`You are using Node ${process.version}, but this version of ${id} 
+            requires Node ${wanted} '.\nPlease upgrade your Node version.`)
+        );
+        process.exit(1);
+    }
+}
+
+/**
+ * Suggest command that is similar to typed command
+ *
+ * @param {string} cmd Typed command in CMD
+ */
+function suggestCommands(cmd) {
+    const availableCommands = program.commands.map(cmd => cmd._name);
+    const suggestion = didYouMean(cmd, availableCommands);
+
+    if (suggestion) {
+        console.log(
+            `  ` + chalk.red(`Did you mean ${chalk.yellow(suggestion)}?`)
+        );
+    }
+}
+
+/**
+ * Run typed command
+ *
+ * @param {array} cliArgs Raw unparsed arguments
  */
 function runCommand(cliArgs) {
+    /**
+     * Define supported commands list.
+     *
+     * "Commander" package is responsible for parsing commands and options.
+     *
+     * Each command might be described by several rules:
+     *
+     * .command         - command name
+     * .alias           - command alias
+     * .description     - command description (will be shown when "help" run)
+     * .option          - define supported options from process.argv
+     * .action          - define method that will be called once command is matched
+     *
+     * See package documentation: https://www.npmjs.com/package/commander
+     */
     program
         .command('init <projectName>')
         .alias('i')
         .description('Initialize your project in <projectName> directory.')
         .option('-f, --f', 'Rewrite files in the target directory')
-        .option('-si, --skip-install', 'When true, does not install dependency packages. Default false')
-        .action((projectName, options) => loadCommand('alfred init', '../commands/init')({
-            skipInstall: !!options.skipInstall,
-            force: !!options.force,
-            projectName
-        }));
+        .option(
+            '-si, --skip-install',
+            'When true, does not install dependency packages. Default false'
+        )
+        .action((projectName, options) =>
+            loadCommand('alfred init', '../commands/init')({
+                skipInstall: !!options.skipInstall,
+                force: !!options.force,
+                projectName
+            })
+        );
 
     program
         .command('develop')
         .alias('dev')
         .description('Start local dev server')
         .option('-p, --port <portNumber>', 'Local dev server port.')
-        .option('-cb, --content-base <contentBase>', 'The webpack-dev-server will serve the files in the current directory. Default "src"')
-        .option('-h, --hot', 'Load the updated modules and inject them into a running app without full page reaload.')
+        .option(
+            '-cb, --content-base <contentBase>',
+            'The webpack-dev-server will serve the files in the current directory. Default "src"'
+        )
+        .option(
+            '-h, --hot',
+            'Load the updated modules and inject them into a running app without full page reaload.'
+        )
         .option('-o, --open', 'Open target URL in the default browser.')
         .action(options => {
             if (options.port && isNaN(options.port)) {
-                console.log(chalk.red(`Option <port> is not defined or it is not a number`));
+                console.log(
+                    chalk.red(
+                        `Option <port> is not defined or it is not a number`
+                    )
+                );
                 process.exit(1);
-            };
+            }
             loadCommand('alfred develop', '../commands/develop')({
                 contentBase: options.contentBase,
                 port: options.port,
-                hot: options.hot,
+                hot: options.hot
             });
         });
 
@@ -82,54 +125,59 @@ function runCommand(cliArgs) {
         .command('generate <semantic> <semanticName>')
         .alias('g')
         .description('Generates files based on a schematic')
-        .option('-t, --type [type]', 'Setup type for created copmponent (func | class). Default func')
-        .action((semantic, semanticName, options) => loadCommand('alfred generate', '../commands/generate')({
-            type: options.type || 'func',
-            semanticName,
-            semantic
-        }));
+        .option(
+            '-t, --type [type]',
+            'Setup type for created copmponent (func | class). Default func'
+        )
+        .action((semantic, semanticName, options) =>
+            loadCommand('alfred generate', '../commands/generate')({
+                type: options.type || 'func',
+                semanticName,
+                semantic
+            })
+        );
 
     program
         .command('build')
         .alias('b')
         .description('Compiles the app into an output directory.')
-        .action(() => loadCommand('../commands/build')());
+        .action(() => loadCommand('alfred build', '../commands/build')());
 
-    program
-        .arguments('<command>')
-        .action((cmd) => {
-            program.outputHelp();
-            console.log();
-            console.log(`  ` + chalk.red(`Unknown command ${chalk.yellow(cmd)}.`))
-            console.log()
-            suggestCommands(cmd);
-        });
+    program.arguments('<command>').action(cmd => {
+        program.outputHelp();
+        console.log();
+        console.log(`  ` + chalk.red(`Unknown command ${chalk.yellow(cmd)}.`));
+        console.log();
+        suggestCommands(cmd);
+    });
 
     program
         .command('info')
         .description('print debugging information about your environment')
         .action(() => {
-            console.log(chalk.bold('\nEnvironment Info:'))
-            require('envinfo').run(
-                {
-                    System: ['OS', 'CPU'],
-                    Binaries: ['Node', 'npm'],
-                    Browsers: ['Chrome', 'Edge', 'Firefox', 'Safari']
-                },
-                {
-                    showNotFound: true,
-                    duplicates: true,
-                    fullTree: true
-                }
-            ).then(console.log)
-        })
+            console.log(chalk.bold('\nEnvironment Info:'));
+            require('envinfo')
+                .run(
+                    {
+                        System: ['OS', 'CPU'],
+                        Binaries: ['Node', 'npm'],
+                        Browsers: ['Chrome', 'Edge', 'Firefox', 'Safari']
+                    },
+                    {
+                        showNotFound: true,
+                        duplicates: true,
+                        fullTree: true
+                    }
+                )
+                .then(console.log);
+        });
 
     if (!process.argv.slice(2).length) {
-        console.log(chalk.blue(`\nWelcome to Alfred, ladies and gentlemens!' \n`));
+        console.log(
+            chalk.blue(`\nWelcome to Alfred, ladies and gentlemens!' \n`)
+        );
         program.outputHelp();
-    };
+    }
 
     program.parse(cliArgs);
-};
-
-runCommand(process.argv);
+}

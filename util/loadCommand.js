@@ -10,8 +10,11 @@ module.exports = function loadCommand(commandName, moduleName) {
             const chalk = require('chalk');
 
             console.log(
-                `Command ${chalk.cyan(commandName)} requires installed ${chalk.cyan(moduleName.split('/').slice(-1))} module. \n` +
-                `Please check commands folder in CLI project.`
+                `Command ${chalk.cyan(
+                    commandName
+                )} requires installed ${chalk.cyan(
+                    moduleName.split('/').slice(-1)
+                )} module. \n` + `Please check commands folder in CLI project.`
             );
 
             process.exit(1);
@@ -19,4 +22,4 @@ module.exports = function loadCommand(commandName, moduleName) {
             throw err;
         }
     }
-}
+};

@@ -38,14 +38,17 @@ async function verifyIfTargetFolderCorrect(targetDirectory, force) {
 
     // Check if target folder already exists
     log(
-        `\n${chalk.gray(`Folder ${chalk.red(targetDirectory)} already exists! \n`)}`
+        `\n${chalk.gray(
+            `Folder ${chalk.red(targetDirectory)} already exists! \n`
+        )}`
     );
 
     const answers = await inquirer.prompt([
         {
             type: 'list',
             name: 'proccedWithFolder',
-            message: 'Proceed with init process? Files inside of the folder will be overwritten',
+            message:
+                'Proceed with init process? Files inside of the folder will be overwritten',
             choices: ['Yes', 'No']
         }
     ]);
@@ -74,19 +77,25 @@ async function applicationSetupQuestions() {
         {
             type: 'input',
             name: 'name',
-            message: 'Please provide desired project name'
+            message: 'Please provide desired project name.'
         },
         {
             type: 'input',
             name: 'description',
-            message: 'Please provide desired project description'
+            message: 'Please provide desired project description.'
+        },
+        {
+            type: 'input',
+            name: 'author',
+            message: 'Please provide project author name.'
         },
         {
             type: 'input',
             name: 'keywords',
-            message: 'Please provide desired project keywords. Use "," to separate them.'
+            message:
+                'Please provide desired project keywords. Use "," to separate them.'
         }
-    ]);;
+    ]);
 }
 
 function updateReadmeFile(projectOptions, targetDirectory) {
@@ -107,13 +116,11 @@ function updatePackageJsonFile(projectOptions, targetDirectory) {
     fs.readFile(projectPackageJSON, (err, file) => {
         if (err) throw err;
 
-        try {
-            let updatedFile = Object.assign(JSON.parse(file), projectOptions);
-
-            fs.writeFileSync(projectPackageJSON, JSON.stringify(updatedFile, null, 4));
-        } catch (e) {
-            throw e;
-        }
+        let updatedFile = Object.assign(JSON.parse(file), projectOptions);
+        fs.writeFileSync(
+            projectPackageJSON,
+            JSON.stringify(updatedFile, null, 4)
+        );
     });
 }
 
@@ -152,19 +159,25 @@ module.exports = async function initProject({
     if (!proceedWithFolder) process.exit();
 
     let setupAnswers = await applicationSetupQuestions();
-    setupAnswers.keywords = setupAnswers.keywords.split(',').filter(keyword => keyword.length)
+    setupAnswers.keywords = setupAnswers.keywords
+        .split(',')
+        .filter(keyword => keyword.length);
 
     log('\n');
     const tasks = new Listr([
         {
             title: 'Copy project files',
-            task: () => copyAppFiles(options).then(() => {
-                updatePackageJsonFile(setupAnswers, options.targetDirectory);
-                updateReadmeFile(setupAnswers, targetDirectory);
-            })
+            task: () =>
+                copyAppFiles(options).then(() => {
+                    updatePackageJsonFile(
+                        setupAnswers,
+                        options.targetDirectory
+                    );
+                    updateReadmeFile(setupAnswers, targetDirectory);
+                })
         },
         {
-            title: 'Install package dependencies with npm',
+            title: 'Install project dependencies with NPM',
             task: () => installDependecies(options.targetDirectory),
             skip: () => options.skipInstall
         }
@@ -175,6 +188,21 @@ module.exports = async function initProject({
     });
 
     log('\n');
-    log('Project ready!', chalk.green.bold('DONE'));
-    log(`Serve your application: ${chalk.blue(`cd ./${targetDirectory}`)} & run ${chalk.blue('alfred develop')}`);
-}
+    log('Project is setup!', chalk.green.bold('DONE'));
+    log('\n');
+
+    if (options.skipInstall) {
+        log(`You haven't installed dev dependencies.`);
+        log(
+            `Run ${chalk.cyan(
+                'npm i'
+            )} before running dev server in the project root.`
+        );
+    } else {
+        log(
+            `Serve your application: ${chalk.blue(
+                `cd ${targetDirectory}`
+            )} & run ${chalk.blue('alfred develop')}`
+        );
+    }
+};

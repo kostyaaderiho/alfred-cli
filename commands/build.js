@@ -1,31 +1,67 @@
-
 const execa = require('execa');
 const chalk = require('chalk');
 const Listr = require('listr');
+const path = require('path');
 
 const log = console.log;
 
-async function runBuild(targetDirectory) {
-    let buildResults = await execa('npm', ['run', 'build'], {
-        cwd: targetDirectory
+/**
+ * Clean dist directory in target project
+ */
+async function cleanDist() {
+    let cleanResults = await execa('rimraf', ['dist'], {
+        cwd: process.cwd()
     });
 
-    if (buildResults.failed) {
-        return Promise.reject('Failed to production build');
+    if (cleanResults.failed) {
+        return Promise.reject('Failed to clean dist folder');
     }
 
-    return buildResults;
+    return cleanResults;
+}
+
+/**
+ * Make production build for target project
+ */
+async function runBuild() {
+    return new Promise((resolve, reject) => {
+        // Require webpack production configuration config from CLI
+        const config = require(path.resolve(
+            __dirname,
+            '..',
+            'config/webpack/webpack.config.prod'
+        ))(process.env, process.cwd());
+
+        // Require locally installed webpack in target directory
+        const webpack = require(path.resolve(
+            process.cwd(),
+            'node_modules/webpack'
+        ));
+        const compiler = webpack(config);
+
+        // Run compilation command
+        compiler.run(err => {
+            if (err) {
+                reject(err);
+            }
+            resolve(true);
+        });
+    });
 }
 
 module.exports = async function build() {
-    const targetDirectory = process.cwd();
-
-    log('\n');
+    log();
+    log(chalk.cyan('Start creating production build!'));
+    log();
 
     const tasks = new Listr([
         {
+            title: 'Clean dist folder',
+            task: () => cleanDist()
+        },
+        {
             title: 'Running production build',
-            task: () => runBuild(targetDirectory)
+            task: () => runBuild()
         }
     ]);
 
@@ -34,6 +70,10 @@ module.exports = async function build() {
         process.exit();
     });
 
-    log('\n');
-    log(`Build has been finished successfully, check your ${chalk.blue('/dist')} folder`)
+    log();
+    log(
+        `Build has been finished successfully, check your ${chalk.blue(
+            'dist'
+        )} folder`
+    );
 };

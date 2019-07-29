@@ -14,20 +14,27 @@ const log = console.log;
  * @param {string} targetDirectory
  * @param {boolean} force Overwrite destination files that already exist.
  */
-async function copyFiles({ templateDirectory, targetDirectory, force = false }) {
+async function copyFiles({
+    templateDirectory,
+    targetDirectory,
+    force = false
+}) {
     return copy(templateDirectory, targetDirectory, {
         clobber: force
     });
-};
+}
 
 /**
  * Rename copied files in the target directory with according semanticName
- * 
- * @param {*} param0 
+ *
+ * @param {*} param0
  */
 function renameFiles({ targetDirectory, semanticName, semantic }) {
     fs.readdirSync(targetDirectory).forEach(file => {
-        let copiedFileName = `${targetDirectory}\\${file.replace(semantic, semanticName)}`;
+        let copiedFileName = `${targetDirectory}\\${file.replace(
+            semantic,
+            semanticName
+        )}`;
         fs.renameSync(`${targetDirectory}\\${file}`, `${copiedFileName}`);
         log(`${chalk.green('CREATE')} ${chalk.white(copiedFileName)}`);
     });
@@ -39,7 +46,11 @@ module.exports = async function generateSemantic({
     type
 }) {
     let options = {
-        templateDirectory: path.join(__dirname, '..', `blueprints/components/${semantic}${type ? '-' + type : ''}`),
+        templateDirectory: path.join(
+            __dirname,
+            '..',
+            `blueprints/components/${semantic}${type ? '-' + type : ''}`
+        ),
         targetDirectory: `${process.cwd()}\\${semanticName}`,
         semanticName,
         semantic,
@@ -47,9 +58,11 @@ module.exports = async function generateSemantic({
     };
 
     if (!fs.existsSync(options.targetDirectory)) {
-        fs.mkdir(options.targetDirectory, () => { });
+        fs.mkdir(options.targetDirectory, () => {});
     } else {
-        console.log(chalk.yellow(`ERROR! Schematic ${semanticName} already exists.`));
+        console.log(
+            chalk.yellow(`ERROR! Schematic ${semanticName} already exists.`)
+        );
         process.exit();
     }
 
