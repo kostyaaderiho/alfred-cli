@@ -2,7 +2,6 @@ const execa = require('execa');
 const chalk = require('chalk');
 const Listr = require('listr');
 const path = require('path');
-
 const log = console.log;
 
 /**
@@ -56,7 +55,7 @@ module.exports = async function build() {
 
     const tasks = new Listr([
         {
-            title: 'Clean dist folder',
+            title: 'Cleaning dist folder',
             task: () => cleanDist()
         },
         {
@@ -72,8 +71,8 @@ module.exports = async function build() {
 
     log();
     log(
-        `Build has been finished successfully, check your ${chalk.blue(
-            'dist'
-        )} folder`
+        `Congrats! Build has been finished ${chalk.green.bold(
+            'successfully'
+        )}. Explore your ${chalk.blue('dist')} folder.`
     );
 };

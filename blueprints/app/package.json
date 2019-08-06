@@ -1,52 +1,144 @@
 {
-    "name": "reactjs-app",
-    "version": "0.0.0",
-    "description": "Awesome ReactJS application",
-    "main": "./src/app.js",
+    "name": "react-template-project",
+    "description": "React template project",
     "scripts": {
+        "build": "alfred build",
         "develop": "alfred develop",
-        "build": "alfred build"
+        "all:test": "npm run test && npm run storybook:test",
+        "clean": "npm cache clean --force && rimraf -- dist node_modules",
+        "test": "jest --config config/jest.config.js",
+        "test:watch": "npm run test -- --watchAll",
+        "test:update": "npm run test -- -u",
+        "test:coverage": "npm run test -- --coverage",
+        "test:stryker": "stryker run config/stryker.config.js",
+        "lint:scss": "stylelint src/**/*.scss",
+        "lint:scss:fix": "stylelint src/**/*.scss --fix",
+        "lint:js": "eslint src/**/*.js",
+        "lint:js:fix": "npm run lint:js -- --fix",
+        "storybook": "start-storybook -p 6006",
+        "storybook:build": "build-storybook --quiet",
+        "storybook:test": "npm run storybook:build && jest --config .storybook/jest.config.js",
+        "storybook:test:update": "npm run storybook:test -- -u"
     },
-    "keywords": [],
+    "husky": {
+        "hooks": {
+            "pre-commit": "lint-staged",
+            "pre-push": "npm run all:test"
+        }
+    },
+    "lint-staged": {
+        "src/**/*.js": [
+            "npm run --silent lint:js:fix",
+            "git add"
+        ],
+        "src/**/*.scss": [
+            "npm run --silent lint:scss:fix",
+            "git add"
+        ]
+    },
     "repository": {
         "type": "git",
         "url": ""
     },
     "private": true,
-    "license": "UNLICENSED",
-    "author": "",
-    "contributors": [],
+    "author": {
+        "name": "Author Name",
+        "email": "author@email.com"
+    },
+    "contributors": [
+        "Author Name1 <author@email1.com>",
+        "Author Name2 <author@email2.com>"
+    ],
+    "keywords": [
+        "javascript",
+        "reactjs",
+        "node",
+        "projects",
+        "sass"
+    ],
+    "browserslist": [
+        "Explorer 11",
+        "last 2 Chrome versions",
+        "last 2 Firefox versions",
+        "last 2 ChromeAndroid versions",
+        "last 2 FirefoxAndroid versions",
+        "last 2 Safari versions",
+        "last 2 iOS versions",
+        "last 2 Edge versions"
+    ],
     "dependencies": {
+        "@aurora/button": "^1.8.12",
+        "@aurora/rtl": "^1.8.12",
+        "@aurora/theme": "^1.0.0",
+        "@aurora/typography": "^1.0.0",
+        "focus-visible": "^5.0.2",
         "react": "^16.8.6",
-        "react-dom": "^16.8.6",
-        "axios": "^0.19.0",
-        "classnames": "^2.2.6",
-        "redux": "^4.0.4",
-        "react-redux": "^7.1.0",
-        "react-router-dom": "^5.0.1"
+        "react-dom": "^16.8.6"
     },
     "devDependencies": {
         "@babel/core": "^7.5.5",
         "@babel/plugin-proposal-class-properties": "^7.5.5",
+        "@babel/plugin-transform-runtime": "^7.5.5",
         "@babel/preset-env": "^7.5.5",
         "@babel/preset-react": "^7.0.0",
+        "@storybook/addon-a11y": "^5.1.9",
+        "@storybook/addon-actions": "^5.1.9",
+        "@storybook/addon-backgrounds": "^5.1.9",
+        "@storybook/addon-info": "^5.1.9",
+        "@storybook/addon-knobs": "^5.1.9",
+        "@storybook/addon-links": "^5.1.9",
+        "@storybook/addon-notes": "^5.1.9",
+        "@storybook/addon-storyshots": "^5.1.9",
+        "@storybook/addon-storyshots-puppeteer": "^5.1.9",
+        "@storybook/addon-viewport": "^5.1.9",
+        "@storybook/addons": "^5.1.9",
+        "@storybook/react": "^5.1.9",
+        "@stryker-mutator/core": "^2.0.2",
+        "@stryker-mutator/html-reporter": "^2.0.2",
+        "@stryker-mutator/javascript-mutator": "^2.0.2",
+        "@stryker-mutator/jest-runner": "^2.0.2",
+        "@testing-library/dom": "^5.6.0",
+        "@testing-library/jest-dom": "^4.0.0",
+        "@testing-library/react": "^8.0.7",
         "babel-loader": "^8.0.6",
-        "css-loader": "^2.1.1",
+        "babel-plugin-macros": "^2.6.1",
+        "clean-webpack-plugin": "^3.0.0",
+        "css-loader": "^3.1.0",
         "eslint": "^6.1.0",
-        "eslint-config-prettier": "^6.0.0",
-        "file-loader": "^3.0.1",
+        "eslint-config-workhuman-react": "^1.0.2",
+        "eslint-import-resolver-webpack": "^0.11.1",
+        "eslint-plugin-import": "^2.18.2",
+        "eslint-plugin-jsx-a11y": "^6.2.3",
+        "eslint-plugin-react": "^7.14.3",
+        "eslint-plugin-react-hooks": "^1.6.1",
+        "file-loader": "^4.1.0",
         "html-webpack-plugin": "^3.2.0",
+        "husky": "^3.0.2",
+        "jest": "^24.8.0",
         "license-webpack-plugin": "^2.1.1",
-        "mini-css-extract-plugin": "^0.5.0",
+        "lint-staged": "^9.2.1",
+        "mini-css-extract-plugin": "^0.8.0",
         "node-sass": "^4.12.0",
         "optimize-css-assets-webpack-plugin": "^5.0.3",
         "prettier": "^1.18.2",
+        "prop-types": "^15.7.2",
+        "react-test-renderer": "^16.8.6",
+        "require-context.macro": "^1.1.0",
+        "rimraf": "^2.6.3",
         "sass-loader": "^7.1.0",
+        "source-map-loader": "^0.2.4",
+        "storybook-addon-rtl": "^0.2.2",
         "style-loader": "^0.23.1",
-        "webpack": "^4.29.6",
+        "stylelint": "^10.1.0",
+        "stylelint-config-workhuman-base": "^2.1.0",
+        "stylelint-order": "^3.0.1",
+        "stylelint-scss": "^3.9.2",
+        "stylelint-selector-bem-pattern": "^2.1.0",
+        "svg-sprite-loader": "^4.1.6",
+        "webpack": "^4.38.0",
         "webpack-cli": "^3.3.6",
         "webpack-dev-server": "^3.7.2",
         "webpack-merge": "^4.2.1",
-        "webpack-visualizer-plugin": "^0.1.11"
+        "webpack-notifier": "^1.8.0"
     }
 }

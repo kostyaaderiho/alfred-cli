@@ -1,15 +1,40 @@
-module.exports = (env, cwd) => {
+module.exports = cwd => {
     const path = require('path');
     const pathResolver = name => path.join(cwd, 'node_modules', name);
-    const MiniCssExtractPlugin = require(pathResolver(
-        'mini-css-extract-plugin'
-    ));
     const HtmlWebpackPlugin = require(pathResolver('html-webpack-plugin'));
+    const { CleanWebpackPlugin } = require(pathResolver(
+        'clean-webpack-plugin'
+    ));
     const merge = require(pathResolver('webpack-merge'));
     const OptimizeCssAssetsPlugin = require(pathResolver(
         'optimize-css-assets-webpack-plugin'
     ));
-    const webpack = require(pathResolver('webpack'));
+    const globalHtmlTemplateSettings = {
+        template: 'public/index.html',
+        favicon: 'public/icon.png',
+        hash: true
+    };
+
+    /**
+     * Match all standalone entries.
+     */
+    const appEntries = [
+        {
+            applicationId: 'react_application',
+            applicationTitle: 'React Applicaiton',
+            filename: 'index.html'
+        }
+    ];
+
+    /**
+     * Creates entry html pages.
+     */
+    const HtmlWebpackPluginInstances = appEntries.map(
+        entry =>
+            new HtmlWebpackPlugin(
+                Object.assign(entry, globalHtmlTemplateSettings)
+            )
+    );
 
     return merge([
         {
@@ -17,61 +42,38 @@ module.exports = (env, cwd) => {
              * Entry application point
              */
             entry: {
-                app: [path.resolve(cwd, 'src/app.js')]
+                main: [path.resolve(cwd, './src/index.js')]
             },
 
             /**
              * Bundle output configuration
              */
             output: {
-                path: path.resolve(cwd, 'dist'),
-                filename: '[name].bundle.js'
+                path: path.resolve(cwd, 'dist')
             },
 
             module: {
                 rules: [
                     /**
                      * Babel loader in order to support ES6 features.
-                     * A Babel 'ENV' preset can automatically determine the Babel plugins and polyfills you need
-                     * based on your supported environments.
                      *
-                     * See: https://webpack.js.org/loaders/babel-loader/
-                     *      https://github.com/babel/babel-preset-env
+                     * @see https://webpack.js.org/loaders/babel-loader/
                      */
                     {
                         test: /\.js$/,
                         exclude: /node_modules/,
-                        use: [
-                            {
-                                loader: 'babel-loader'
-                            }
-                        ]
-                    },
-                    {
-                        /**
-                         * Pipeline for inserting CSS into the page
-                         *
-                         * Sass loader: compiles SASS to CSS, using Node Sass
-                         * CSS loader: Translates CSS into CommonJS (interprets @import and url())
-                         * Style loader: Creates style nodes from JS strings
-                         */
-                        test: /\.(sa|sc|c)ss$/,
-                        use: [
-                            env.ENVIRONMENT === 'production'
-                                ? MiniCssExtractPlugin.loader
-                                : 'style-loader',
-                            'css-loader',
-                            'sass-loader'
-                        ]
+                        use: {
+                            loader: 'babel-loader'
+                        }
                     },
 
                     /**
                      * File loader for supporting images, fonts, for example, in CSS files.
                      *
-                     * See: https://webpack.js.org/loaders/file-loader/
+                     * @see https://webpack.js.org/loaders/file-loader/
                      */
                     {
-                        test: /\.(woff|woff2|eot|ttf|otf|png|jpg|gif)$/,
+                        test: /\.(woff|woff2|png|jpg)$/,
                         use: {
                             loader: 'file-loader',
                             options: {
@@ -83,10 +85,9 @@ module.exports = (env, cwd) => {
                     /**
                      * SVG loader for supporting svg, for example, in CSS/HTML files.
                      * Generates sprite from required SVG files.
-                     * SVGO loader to optimize / minifie SVG file.
                      *
-                     * See: https://github.com/kisenka/svg-sprite-loader
-                     * See: https://github.com/rpominov/svgo-loader
+                     * @see https://github.com/kisenka/svg-sprite-loader
+                     * @see https://github.com/rpominov/svgo-loader
                      */
                     {
                         test: /\.svg$/,
@@ -96,11 +97,8 @@ module.exports = (env, cwd) => {
             },
 
             resolve: {
-                /**
-                 * Define aliases
-                 */
                 alias: {
-                    '~': path.resolve(__dirname, '..', 'src')
+                    '~': path.resolve(cwd, 'src')
                 }
             },
 
@@ -111,31 +109,30 @@ module.exports = (env, cwd) => {
                  * This is especially useful for webpack bundles that include a hash in the filename
                  * which changes every compilation.
                  *
-                 * See: https://github.com/ampedandwired/html-webpack-plugin
+                 * @see https://github.com/ampedandwired/html-webpack-plugin
                  */
-                new HtmlWebpackPlugin({
-                    title: 'Awesome ReactJS app',
-                    template: './src/index.html'
-                }),
+                ...HtmlWebpackPluginInstances,
 
                 /**
                  * Plugin: OptimizeCssAssetsPlugin
                  * Description: Minifies resulted CSS. Removes duplicated SCSS imports.
                  *
-                 * See: https://github.com/NMFR/optimize-css-assets-webpack-plugin
+                 * @see https://github.com/NMFR/optimize-css-assets-webpack-plugin
                  */
                 new OptimizeCssAssetsPlugin(),
 
                 /**
-                 * Plugin: DefinePlugin
+                 * All files inside webpack's output.path directory will be removed once, but the
+                 * directory itself will not be. If using webpack 4+'s default configuration,
+                 * everything under <PROJECT_DIR>/dist/ will be removed.
+                 * Use cleanOnceBeforeBuildPatterns to override this behavior.
                  *
-                 * Description: Allows to define environment variables that can be used on client and server sides;
+                 * During rebuilds, all webpack assets that are not used anymore
+                 * will be removed automatically.
                  *
-                 * See: https://webpack.js.org/plugins/define-plugin/
+                 * @see https://github.com/johnagan/clean-webpack-plugin
                  */
-                new webpack.DefinePlugin({
-                    ENVIRONMENT: JSON.stringify(process.env.ENVIRONMENT)
-                })
+                new CleanWebpackPlugin()
             ]
         }
     ]);

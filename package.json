@@ -27,6 +27,7 @@
         "chalk": "^2.4.2",
         "commander": "^2.20.0",
         "didyoumean": "^1.2.1",
+        "dotenv": "^8.0.0",
         "envinfo": "^7.3.1",
         "execa": "^2.0.3",
         "inquirer": "^6.5.0",

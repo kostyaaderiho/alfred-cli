@@ -1,21 +1,13 @@
 # <projectName>
 
-Welcome to the <projectName> ReactJS application!
+Welcome to the <projectName>!
 
 ## Getting started
 
-To install all dependencies, (e.g. after cloning it from a Git repository) run
+To install all dependencies run
 
 ```
 npm install
-```
-
-## Running tests
-
-Tests can be run with
-
-```
-npm run test
 ```
 
 ## Development mode
@@ -26,7 +18,23 @@ Development mode can be started with
 npm run develop
 ```
 
-## Build and production mode
+## Storybook start
+
+Storybook can be started with
+
+```
+npm run storybook
+```
+
+## Running tests
+
+Tests can be run with
+
+```
+npm run test
+```
+
+## Build in production mode
 
 To build the application into a production bundle run
 

@@ -12,7 +12,7 @@ const copy = promisify(ncp);
 const log = console.log;
 
 /**
- * Install project dependencies into the target directory
+ * Install project dependencies into the target directory.
  *
  * @param {string} targetDirectory Folder where files are copied to
  */
@@ -29,9 +29,10 @@ async function installDependecies(targetDirectory) {
 }
 
 /**
- * Verify if should proceed with set target folder
+ * Verify if should proceed with setup project into target directory.
  *
  * @param {string} targetDirectory Folder where files are copied to
+ * @param {boolean} force Overrwrite files into the target directory
  */
 async function verifyIfTargetFolderCorrect(targetDirectory, force) {
     if (!fs.existsSync(targetDirectory) || force) return true;
@@ -57,11 +58,11 @@ async function verifyIfTargetFolderCorrect(targetDirectory, force) {
 }
 
 /**
- * Copy app files into target directory
+ * Copy app files into target directory.
  *
  * @param {string} templateDirectory Project template files directory
- * @param {string} targetDirectory Target directory where filles will be copied to
- * @param {boolean} force Overwrite destination files that already exist.
+ * @param {string} targetDirectory Target directory where files will be copied to
+ * @param {boolean} force Overwrite destination files that already exist
  */
 async function copyAppFiles({ templateDirectory, targetDirectory, force }) {
     return copy(templateDirectory, targetDirectory, {
@@ -70,7 +71,7 @@ async function copyAppFiles({ templateDirectory, targetDirectory, force }) {
 }
 
 /**
- * Define project setup questions
+ * Define project setup questions.
  */
 async function applicationSetupQuestions() {
     return await inquirer.prompt([
@@ -86,8 +87,13 @@ async function applicationSetupQuestions() {
         },
         {
             type: 'input',
-            name: 'author',
+            name: 'author.name',
             message: 'Please provide project author name.'
+        },
+        {
+            type: 'input',
+            name: 'author.email',
+            message: 'Please provide project author email.'
         },
         {
             type: 'input',
@@ -98,6 +104,12 @@ async function applicationSetupQuestions() {
     ]);
 }
 
+/**
+ * Update README.md file based on provided project information.
+ *
+ * @param {*} projectOptions Project configration options
+ * @param {*} targetDirectory Target folder where project will be setup
+ */
 function updateReadmeFile(projectOptions, targetDirectory) {
     fs.readFile(`${targetDirectory}/README.md`, 'utf8', (err, file) => {
         if (err) throw err;
@@ -110,13 +122,105 @@ function updateReadmeFile(projectOptions, targetDirectory) {
     });
 }
 
-function updatePackageJsonFile(projectOptions, targetDirectory) {
+/**
+ * Simple object check.
+ *
+ * @param item Checked item
+ */
+function isObject(item) {
+    return item && typeof item === 'object' && !Array.isArray(item);
+}
+
+/**
+ * Deep objects merge method,
+ *
+ * @param {*} target Target object
+ * @param  {...any} sources Merged object
+ */
+function mergeDeep(target, ...sources) {
+    if (!sources.length) return target;
+    const source = sources.shift();
+
+    if (isObject(target) && isObject(source)) {
+        for (const key in source) {
+            if (isObject(source[key])) {
+                if (!target[key]) Object.assign(target, { [key]: {} });
+                mergeDeep(target[key], source[key]);
+            } else {
+                Object.assign(target, { [key]: source[key] });
+            }
+        }
+    }
+
+    return mergeDeep(target, ...sources);
+}
+
+/**
+ * Parse input options during project creation.
+ * Allows to predefine configuration with nested options.
+ *
+ * @param {*} options Input users options.
+ */
+function parseInputOptions(options) {
+    let parsedOptions = {};
+
+    for (let opt in options) {
+        let optionPath = opt.split('.');
+        let parsedOption = {};
+
+        for (let i = 0; i < optionPath.length; i++) {
+            if (i === 0) {
+                parsedOption[optionPath[i]] =
+                    optionPath.length === 1 ? options[opt] : {};
+            } else {
+                if (i === optionPath.length - 1) {
+                    parsedOption[optionPath[i - 1]][optionPath[i]] = options[
+                        opt
+                    ].trim();
+                } else {
+                    parsedOption[optionPath[i - 1]][optionPath[i]] = {};
+                }
+            }
+        }
+        parsedOptions = mergeDeep(parsedOptions, parsedOption);
+    }
+
+    return parsedOptions;
+}
+
+/**
+ * Pretify input options based on .json rules before updating package.json file.
+ *
+ * @param {*} options
+ */
+function pretifyPackageJSONOptions(options) {
+    return {
+        ...options,
+        name: options.name
+            .toLowerCase()
+            .trim()
+            .replace(/ /g, '-'),
+        description: options.description.trim(),
+        keywords: options.keywords.map(keyword => keyword.toLowerCase())
+    };
+}
+
+/**
+ * Update project package.json file based on provided options.
+ *
+ * @param {*} projectOptions Provided project configiratop options
+ * @param {*} targetDirectory Project directory
+ */
+function updatePackageJSONFile(projectOptions, targetDirectory) {
     const projectPackageJSON = `${targetDirectory}/package.json`;
 
     fs.readFile(projectPackageJSON, (err, file) => {
         if (err) throw err;
 
-        let updatedFile = Object.assign(JSON.parse(file), projectOptions);
+        let updatedFile = Object.assign(
+            JSON.parse(file),
+            pretifyPackageJSONOptions(parseInputOptions(projectOptions))
+        );
         fs.writeFileSync(
             projectPackageJSON,
             JSON.stringify(updatedFile, null, 4)
@@ -125,7 +229,8 @@ function updatePackageJsonFile(projectOptions, targetDirectory) {
 }
 
 /**
- * Entry project initialization method
+ * Entry project initialization method.
+ *
  * @param {string} projectName Further project and target folder name
  * @param {boolean} skipInstall Skipping install dependencies flag
  * @param {boolean} force Rewrite already existing folder flag
@@ -169,7 +274,7 @@ module.exports = async function initProject({
             title: 'Copy project files',
             task: () =>
                 copyAppFiles(options).then(() => {
-                    updatePackageJsonFile(
+                    updatePackageJSONFile(
                         setupAnswers,
                         options.targetDirectory
                     );
@@ -194,9 +299,9 @@ module.exports = async function initProject({
     if (options.skipInstall) {
         log(`You haven't installed dev dependencies.`);
         log(
-            `Run ${chalk.cyan(
-                'npm i'
-            )} before running dev server in the project root.`
+            `Run ${chalk.cyan('npm i')} before running ${chalk.cyan(
+                'alfred develop'
+            )} command.`
         );
     } else {
         log(

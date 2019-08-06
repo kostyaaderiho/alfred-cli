@@ -1,0 +1,11 @@
+{
+    "extends": "workhuman-react",
+    "settings": {
+        "import/resolver": {
+            "webpack": {
+                "config": "./config/webpack.common.js"
+            }
+        },
+        "import/ignore": ["node_modules"]
+    }
+}

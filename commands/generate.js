@@ -1,8 +1,8 @@
 const promisify = require('util').promisify;
+const chalk = require('chalk');
 const path = require('path');
 const ncp = require('ncp');
 const fs = require('fs');
-const chalk = require('chalk');
 
 const copy = promisify(ncp);
 const log = console.log;

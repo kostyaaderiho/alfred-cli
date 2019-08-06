@@ -96,6 +96,7 @@ function runCommand(cliArgs) {
         .alias('dev')
         .description('Start local dev server')
         .option('-p, --port <portNumber>', 'Local dev server port.')
+        .option('-pr, --proxy <proxyURL>', 'Target proxy URL')
         .option(
             '-cb, --content-base <contentBase>',
             'The webpack-dev-server will serve the files in the current directory. Default "src"'
@@ -116,6 +117,7 @@ function runCommand(cliArgs) {
             }
             loadCommand('alfred develop', '../commands/develop')({
                 contentBase: options.contentBase,
+                proxyOption: options.proxy,
                 port: options.port,
                 hot: options.hot
             });

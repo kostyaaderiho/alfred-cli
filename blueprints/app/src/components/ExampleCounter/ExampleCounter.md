@@ -1,0 +1,3 @@
+# ExampleCounter
+
+Greatest counter ever !

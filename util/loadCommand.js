@@ -1,3 +1,6 @@
+/**
+ * Load module for specidifed command and exit process in case of not installed package.
+ */
 module.exports = function loadCommand(commandName, moduleName) {
     const isNotFoundError = err => {
         return err.message.match(/Cannot find module/);
@@ -8,7 +11,6 @@ module.exports = function loadCommand(commandName, moduleName) {
         console.log(err);
         if (isNotFoundError(err)) {
             const chalk = require('chalk');
-
             console.log(
                 `Command ${chalk.cyan(
                     commandName
