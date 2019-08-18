@@ -2,6 +2,7 @@
     "name": "react-template-project",
     "description": "React template project",
     "scripts": {
+        "alfred": "alfred",
         "build": "alfred build",
         "develop": "alfred develop",
         "all:test": "npm run test && npm run storybook:test",

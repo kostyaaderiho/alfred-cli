@@ -1,4 +1,4 @@
-# <projectName>
+# <projectName> project
 
 Welcome to the <projectName>!
 

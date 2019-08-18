@@ -3,14 +3,15 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.globoforce.celebrations</groupId>
-        <artifactId>celebrations-ui-parent</artifactId>
-        <version>2019.3.13</version>
+        <groupId>com.globoforce</groupId>
+        <artifactId>react-application</artifactId>
+        <version>TRUNK-SNAPSHOT</version>
     </parent>
-    <groupId>com.globoforce.celebrations</groupId>
-    <artifactId>celebrations</artifactId>
+    <groupId>com.globoforce.react-application</groupId>
+    <artifactId>react-application</artifactId>
     <packaging>pom</packaging>
-    <name>celebrations</name>
+    <version>TRUNK-SNAPSHOT</version>
+    <name>react-application</name>
 
     <properties>
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
@@ -44,8 +45,7 @@
                             <goal>install-node-and-npm</goal>
                         </goals>
                         <configuration>
-                            <!-- See https://nodejs.org/en/download/ for latest node and npm (lts) versions -->
-                            <nodeVersion>v10.16.0</nodeVersion>
+                            <nodeVersion>v10.16.2</nodeVersion>
                             <npmVersion>6.9.0</npmVersion>
                         </configuration>
                     </execution>

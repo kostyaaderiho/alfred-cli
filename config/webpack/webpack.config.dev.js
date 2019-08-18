@@ -1,13 +1,7 @@
 module.exports = (cwd, env, devServer) => {
-    const path = require('path');
-    const WebpackNotifierPlugin = require(path.resolve(
-        cwd,
-        'node_modules',
-        'webpack-notifier'
-    ));
-    const webpack = require(path.resolve(cwd, 'node_modules', 'webpack'));
-
-    return {
+    const WebpackNotifierPlugin = require('webpack-notifier');
+    const webpack = require('webpack');
+    const webpackDevConfig = {
         mode: 'development',
         devtool: 'source-map',
 
@@ -68,4 +62,13 @@ module.exports = (cwd, env, devServer) => {
 
         devServer
     };
+
+    /**
+     * webpackDevConfig is merged with webpack.config.base.js
+     *
+     * "develop" command is responsible for the merge process and veryfying user's custom config.
+     *
+     * @see: ../commands/develop.js file.
+     */
+    return webpackDevConfig;
 };

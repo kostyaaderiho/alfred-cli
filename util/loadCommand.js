@@ -1,5 +1,7 @@
 /**
- * Load module for specidifed command and exit process in case of not installed package.
+ * Load module for specified command and.
+ *
+ * Exit process in case of not installed package.
  */
 module.exports = function loadCommand(commandName, moduleName) {
     const isNotFoundError = err => {
@@ -8,9 +10,11 @@ module.exports = function loadCommand(commandName, moduleName) {
     try {
         return require(moduleName);
     } catch (err) {
+        console.log();
         console.log(err);
         if (isNotFoundError(err)) {
             const chalk = require('chalk');
+            console.log();
             console.log(
                 `Command ${chalk.cyan(
                     commandName
@@ -18,7 +22,6 @@ module.exports = function loadCommand(commandName, moduleName) {
                     moduleName.split('/').slice(-1)
                 )} module. \n` + `Please check commands folder in CLI project.`
             );
-
             process.exit(1);
         } else {
             throw err;

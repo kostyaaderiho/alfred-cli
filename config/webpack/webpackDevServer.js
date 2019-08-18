@@ -1,3 +1,6 @@
+/**
+ * Default webpackDevServer proxy configuration.
+ */
 module.exports = {
     PROXY_TARGET_DEFAULT: 'https://localhost',
     PROXY_ENDPOINTS: [
@@ -19,5 +22,10 @@ module.exports = {
         '/award',
         '/pm',
         '/ws'
-    ]
+    ],
+    DEFAULT_OPTIONS: {
+        historyApiFallback: true,
+        inline: true,
+        port: 3000
+    }
 };

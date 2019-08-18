@@ -1,0 +1,3 @@
+# ExampleComponent
+
+Greatest ExampleComponent ever !
