@@ -1,6 +1,6 @@
-# <projectName> project
+# <%= name %> project
 
-Welcome to the <projectName>!
+Welcome to the <%= name %>!
 
 ## Getting started
 

@@ -1,6 +1,6 @@
-const loadCommand = require('../util/loadCommand');
 const didYouMean = require('didyoumean');
 const program = require('commander');
+const Command = require('./command');
 const chalk = require('chalk');
 
 /**
@@ -43,70 +43,67 @@ async function commandRunner(workspace, args) {
             'When true, does not install dependency packages.'
         )
         .action((projectName, options) => {
-            let InitCommand = loadCommand('init', '../commands/init');
-            let command = new InitCommand({
+            let command = new Command({
                 workspace,
                 options: {
                     skipInstall: !!options.skipInstall,
-                    force: !!options.force,
-                    projectName
-                }
+                    schematicName: projectName,
+                    force: !!options.force
+                },
+                name: 'init'
             });
             command.validateAndRun();
         });
 
-    program
-        .command('develop')
-        .alias('dev')
-        .description('Start local dev server.')
-        .option('--port <portNumber>', 'Local dev server port.')
-        .option('--proxy <proxyURL>', 'Target proxy URL')
-        .action(options => {
-            let DevCommand = loadCommand('develop', '../commands/develop');
-            let command = new DevCommand({
-                workspace,
-                options: {
-                    proxyOption: options.proxy,
-                    port: options.port
-                }
-            });
-            command.validateAndRun();
-        });
+    // program
+    //     .command('develop')
+    //     .alias('dev')
+    //     .description('Start local dev server.')
+    //     .option('--port <portNumber>', 'Local dev server port.')
+    //     .option('--proxy <proxyURL>', 'Target proxy URL')
+    //     .action(options => {
+    //         let DevCommand = loadCommand('develop', '../commands/develop');
+    //         let command = new DevCommand({
+    //             workspace,
+    //             options: {
+    //                 proxyOption: options.proxy,
+    //                 port: options.port
+    //             }
+    //         });
+    //         command.validateAndRun();
+    //     });
 
-    program
-        .command('build')
-        .alias('b')
-        .description('Compiles the app into an output directory.')
-        .action(() => {
-            let BuildCommand = loadCommand('build', '../commands/build');
-            let command = new BuildCommand({
-                workspace
-            });
-            command.validateAndRun();
-        });
+    // program
+    //     .command('build')
+    //     .alias('b')
+    //     .description('Compiles the app into an output directory.')
+    //     .action(() => {
+    //         let BuildCommand = loadCommand('build', '../commands/build');
+    //         let command = new BuildCommand({
+    //             workspace
+    //         });
+    //         command.validateAndRun();
+    //     });
 
-    program
-        .command('generate <shematic> <shematicName>')
-        .alias('g')
-        .description('Generates files based on a schematic')
-        .option(
-            '-f, --force',
-            'When true, forces overwriting of existing files.'
-        )
-        .action((schematic, schematicName) => {
-            let GenerateCommand = loadCommand(
-                'generate',
-                '../commands/generate'
-            );
-            let command = new GenerateCommand({
-                workspace,
-                options: {
-                    schematicName,
-                    schematic
-                }
-            });
-            command.validateAndRun();
-        });
+    // program
+    //     .command('generate <shematic> <shematicName>')
+    //     .alias('g')
+    //     .description('Generates files based on a schematic')
+    //     .option(
+    //         '-f, --force',
+    //         'When true, forces overwriting of existing files.'
+    //     )
+    //     .action((schematic, schematicName) => {
+    //         let command = new Command({
+    //             workspace,
+    //             options: {
+    //                 schematicName,
+    //                 schematic
+    //             },
+    //             name: 'generate'
+    //         });
+    //         command.validateAndRun();
+    //     });
 
     program.arguments('<command>').action(cmd => {
         program.outputHelp();

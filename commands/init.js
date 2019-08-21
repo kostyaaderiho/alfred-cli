@@ -1,35 +1,71 @@
 const parseInputOptions = require('../util/options');
-const Command = require('../models/command');
-const promisify = require('util').promisify;
 const inquirer = require('inquirer');
 const xml2js = require('xml2js');
 const chalk = require('chalk');
 const Listr = require('listr');
 const execa = require('execa');
 const path = require('path');
-const ncp = require('ncp');
 const fs = require('fs');
 
-const access = promisify(fs.access);
-const copy = promisify(ncp);
+const Blueprint = require('../models/blueprint');
 const log = console.log;
+
+const PROJECT_SETUP_QUESTIONS = [
+    {
+        type: 'input',
+        name: 'name',
+        message: 'Please provide desired project name.'
+    },
+    {
+        type: 'input',
+        name: 'id',
+        message: 'Please provide desired project id.'
+    },
+    {
+        type: 'input',
+        name: 'title',
+        message:
+            'Please provide desired project title. Used in index.html file.'
+    },
+    {
+        type: 'input',
+        name: 'description',
+        message:
+            'Please provide desired project description. Used in package.json file and <meta type="description"/>'
+    },
+    {
+        type: 'input',
+        name: 'author.name',
+        message: 'Please provide project author name.'
+    },
+    {
+        type: 'input',
+        name: 'author.email',
+        message: 'Please provide project author email.'
+    },
+    {
+        type: 'input',
+        name: 'keywords',
+        message:
+            'Please provide desired project keywords. Use "," to separate them.'
+    }
+];
 
 /**
  * Entry project initialization command.
  */
-class Init extends Command {
-    constructor(args) {
-        super(args);
-        this.commandName = 'init';
-        this.scope = 'out';
-        this.options = {
-            ...this.options,
-            templateDirectory: path.resolve(__dirname, '..', 'blueprints/app'),
-            targetDirectory: path.resolve(
-                process.cwd(),
-                this.options.projectName
-            )
-        };
+class Init {
+    constructor({ options }) {
+        this.options = options;
+        this.options.schematicDir = path.resolve(
+            __dirname,
+            '..',
+            'blueprints/app'
+        );
+        this.options.schematicCopyURL = path.resolve(
+            process.cwd(),
+            options.schematicName
+        );
     }
 
     /**
@@ -37,7 +73,7 @@ class Init extends Command {
      */
     async installDependecies() {
         const result = await execa('npm', ['install'], {
-            cwd: this.options.targetDirectory
+            cwd: this.options.schematicCopyURL
         });
 
         if (result.failed) {
@@ -48,91 +84,10 @@ class Init extends Command {
     }
 
     /**
-     * Verify if should proceed with setup project into target directory.
-     */
-    async verifyIfTargetFolderCorrect() {
-        if (!fs.existsSync(this.options.targetDirectory) || this.options.force)
-            return true;
-
-        // Check if target folder already exists
-        log(
-            `\n${chalk.gray(
-                `Folder ${chalk.red(
-                    this.options.projectName
-                )} already exists! \n`
-            )}`
-        );
-
-        const answers = await inquirer.prompt([
-            {
-                type: 'list',
-                name: 'proccedWithFolder',
-                message:
-                    'Proceed with init process? Files inside of the folder will be overwritten.',
-                choices: ['Yes', 'No']
-            }
-        ]);
-
-        return answers.proccedWithFolder === 'Yes';
-    }
-
-    /**
-     * Copy app files into target directory.
-     */
-    copyAppFiles() {
-        return copy(
-            this.options.templateDirectory,
-            this.options.targetDirectory,
-            {
-                clobber: this.options.force
-            }
-        );
-    }
-
-    /**
      * Define project setup questions.
      */
-    async initApplicationSetupQuestions() {
-        let answers = await inquirer.prompt([
-            {
-                type: 'input',
-                name: 'name',
-                message: 'Please provide desired project name.'
-            },
-            {
-                type: 'input',
-                name: 'id',
-                message: 'Please provide desired project id.'
-            },
-            {
-                type: 'input',
-                name: 'title',
-                message:
-                    'Please provide desired project title. Used in index.html file.'
-            },
-            {
-                type: 'input',
-                name: 'description',
-                message:
-                    'Please provide desired project description. Used in package.json file and <meta type="description"/>'
-            },
-            {
-                type: 'input',
-                name: 'author.name',
-                message: 'Please provide project author name.'
-            },
-            {
-                type: 'input',
-                name: 'author.email',
-                message: 'Please provide project author email.'
-            },
-            {
-                type: 'input',
-                name: 'keywords',
-                message:
-                    'Please provide desired project keywords. Use "," to separate them.'
-            }
-        ]);
+    async promtQuestions() {
+        let answers = await inquirer.prompt(PROJECT_SETUP_QUESTIONS);
 
         answers.keywords = answers.keywords
             .split(',')
@@ -148,18 +103,15 @@ class Init extends Command {
      */
     updateReadmeFile(projectOptions) {
         fs.readFile(
-            `${this.options.targetDirectory}/README.md`,
+            `${this.options.schematicCopyURL}/README.md`,
             'utf8',
             (err, file) => {
                 if (err) throw err;
 
-                let output = file.replace(
-                    /<projectName>/g,
-                    projectOptions.name
-                );
+                let output = file.replace(/<%= name %>/g, projectOptions.name);
 
                 fs.writeFile(
-                    `${this.options.targetDirectory}/README.md`,
+                    `${this.options.schematicCopyURL}/README.md`,
                     output,
                     'utf8',
                     err => {
@@ -193,7 +145,7 @@ class Init extends Command {
      * @param {*} projectOptions Provided project configiratop options
      */
     updatePackageJSONFile(projectOptions) {
-        const projectPackageJSON = `${this.options.targetDirectory}/package.json`;
+        const projectPackageJSON = `${this.options.schematicCopyURL}/package.json`;
 
         fs.readFile(projectPackageJSON, (err, file) => {
             if (err) throw err;
@@ -212,7 +164,7 @@ class Init extends Command {
     }
 
     updateProjectCLIFile(projectOptions) {
-        const projectCLIFileNameURL = `${this.options.targetDirectory}/alfred.json`;
+        const projectCLIFileNameURL = `${this.options.schematicCopyURL}/alfred.json`;
 
         fs.readFile(projectCLIFileNameURL, (err, file) => {
             if (err) throw err;
@@ -231,7 +183,7 @@ class Init extends Command {
     }
 
     updatePOMFile(projectOptions) {
-        let pomFileURL = path.resolve(this.options.targetDirectory, 'pom.xml');
+        let pomFileURL = path.resolve(this.options.schematicCopyURL, 'pom.xml');
         const { parseString } = xml2js;
 
         if (fs.existsSync(pomFileURL)) {
@@ -259,39 +211,33 @@ class Init extends Command {
         }
     }
 
+    _processFiles(passedOptions) {
+        this.updatePackageJSONFile(passedOptions);
+        this.updateProjectCLIFile(passedOptions);
+        this.updateReadmeFile(passedOptions);
+        this.updatePOMFile(passedOptions);
+    }
+
     async run() {
-        // Check if template directory accessible
-        try {
-            await access(this.options.templateDirectory, fs.constants.R_OK);
-        } catch (err) {
-            log(
-                'The project template folder does not exist. Please check your dependencies.'
-            );
-            process.exit();
-        }
-
-        // Check if folder already exist and should proceed with init project
-        let proceedWithFolder = await this.verifyIfTargetFolderCorrect();
-
-        if (!proceedWithFolder) process.exit();
-
-        let setupAnswers = await this.initApplicationSetupQuestions();
-
-        log('\n');
+        let passedOptions = await this.promtQuestions();
 
         const tasks = new Listr([
             {
-                title: 'Copy project files',
-                task: () =>
-                    this.copyAppFiles().then(() => {
-                        this.updatePackageJSONFile(setupAnswers);
-                        this.updateProjectCLIFile(setupAnswers);
-                        this.updateReadmeFile(setupAnswers);
-                        this.updatePOMFile(setupAnswers);
-                    })
+                title: 'Process project files.',
+                task: () => {
+                    let bp = new Blueprint({
+                        copyPath: this.options.schematicCopyURL,
+                        passedName: this.options.schematicName,
+                        rename: false,
+                        type: 'app'
+                    });
+                    bp.load().then(() => {
+                        this._processFiles(passedOptions);
+                    });
+                }
             },
             {
-                title: 'Install project dependencies with NPM',
+                title: 'Install project dependencies with NPM.',
                 task: () => this.installDependecies(),
                 skip: () => this.options.skipInstall
             }
