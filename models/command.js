@@ -1,28 +1,45 @@
+const BLUEPRINTS = require('../blueprints');
 const chalk = require('chalk');
 const path = require('path');
 const fs = require('fs');
 
+/**
+ * Root command class.
+ *
+ * Defines default behavior for all commands.
+ */
 class Command {
     constructor({ options = {}, workspace, name }) {
-        this.isSchematicCommand = null;
-        this.schematicCopyURL = null;
         this.workspace = workspace;
         this.options = options;
-        this.scope = null;
         this.name = name;
         this.processCommand();
     }
 
+    /**
+     * Process command based on passed options.
+     */
     processCommand() {
-        let commandConfig = this.commandConfig();
-        this.schematicCopyURL = path.resolve(
-            process.cwd(),
-            this.options.schematicName
-        );
-        this.isSchematicCommand = commandConfig.isSchematicCommand;
-        this.scope = commandConfig.scope;
+        let commandConfig = this.getCommandConfig();
 
-        this.validateScope();
+        this.scope = commandConfig.scope || null;
+        this.isSchematicCommand = commandConfig.isSchematicCommand;
+
+        if (this.isSchematicCommand) {
+            this.options.copyPath =
+                this.name === 'init'
+                    ? path.resolve(process.cwd(), this.options.schematicName)
+                    : path.resolve(
+                          this.workspace.root,
+                          BLUEPRINTS.find(
+                              schematic =>
+                                  schematic.name === this.options.schematic
+                          ).copyPath,
+                          this.options.schematicName
+                      );
+        }
+
+        this.validate();
 
         Command.commandMap = require(path.resolve(
             __dirname,
@@ -31,7 +48,10 @@ class Command {
         ));
     }
 
-    commandConfig() {
+    /**
+     * Retrieve command config.
+     */
+    getCommandConfig() {
         let commands = require('../commands');
         let command = commands.find(command => command.name === this.name);
 
@@ -43,7 +63,19 @@ class Command {
         return command;
     }
 
-    validateScope() {
+    /**
+     * Validation method.
+     *
+     * Used before execution commad run method.
+     */
+    validate() {
+        if (!this.scope) {
+            console.log();
+            console.log(
+                `The scope for ${this.name} is not defined, correct commands.js file.`
+            );
+            console.log();
+        }
         if (
             this.scope === 'in' &&
             (this.workspace === null || !this.workspace.configFile)
@@ -69,15 +101,24 @@ class Command {
             process.exit();
         }
 
-        if (this.isSchematicCommand && fs.existsSync(this.schematicCopyURL)) {
+        if (this.isSchematicCommand && fs.existsSync(this.options.copyPath)) {
             console.log();
-            console.log(
-                chalk.yellow(
-                    `WARNING! Schematic ${this.schematicCopyURL} already exists.`
-                )
-            );
+            if (this.name === 'init') {
+                console.log(
+                    chalk.yellow(
+                        `WARNING! The project ${this.options.copyPath} already exists.`
+                    )
+                );
+            } else {
+                console.log(
+                    chalk.yellow(
+                        `WARNING! The ${this.options.schematic} already exists ${this.options.copyPath}.`
+                    )
+                );
+            }
+
             console.log();
-            console.log(chalk.red('The Schematic workflow failed.'));
+            console.log(chalk.red('The command workflow failed.'));
             process.exit();
         }
     }

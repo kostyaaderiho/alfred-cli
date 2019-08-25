@@ -1,15 +1,16 @@
-const Command = require('../models/command');
 const execa = require('execa');
 const chalk = require('chalk');
 const Listr = require('listr');
 const path = require('path');
 const log = console.log;
 
-class BuildCommand extends Command {
-    constructor(args) {
-        super(args);
-        this.commandName = 'build';
-        this.scope = 'in';
+/**
+ * Project production build command.
+ */
+class BuildCommand {
+    constructor({ workspace, options }) {
+        this.options = options;
+        this.workspace = workspace;
     }
 
     /**
@@ -17,7 +18,7 @@ class BuildCommand extends Command {
      */
     async cleanDist() {
         let cleanResults = await execa('rimraf', ['dist'], {
-            cwd: process.cwd()
+            cwd: this.workspace.root
         });
 
         if (cleanResults.failed) {

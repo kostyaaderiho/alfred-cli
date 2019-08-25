@@ -1,4 +1,4 @@
-# <%= name %> project
+# React <%= name %>
 
 Welcome to the <%= name %>!
 

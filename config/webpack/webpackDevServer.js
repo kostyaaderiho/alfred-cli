@@ -26,6 +26,7 @@ module.exports = {
     DEFAULT_OPTIONS: {
         historyApiFallback: true,
         inline: true,
-        port: 3000
+        port: 3000,
+        open: true
     }
 };

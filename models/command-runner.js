@@ -4,9 +4,9 @@ const Command = require('./command');
 const chalk = require('chalk');
 
 /**
- * Suggest command that is similar to typed command
+ * Suggest command that is similar to typed command.
  *
- * @param {string} cmd Typed command in CMD
+ * @param {string} cmd Typed command in CMD.
  */
 function suggestCommands(cmd) {
     const availableCommands = program.commands.map(cmd => cmd._name);
@@ -20,24 +20,43 @@ function suggestCommands(cmd) {
 }
 
 /**
+ * CLI start message.
+ *
+ * @param {*} commands Available commands list.
+ */
+function startMessage(commands) {
+    let message = `
+${chalk.blue(`\nWelcome to Alfred, ladies and gentlemens! \n`)}
+Available commands: 
+\n`;
+
+    return commands.reduce(
+        (accum, current) =>
+            (accum += `${chalk.blue(current._name)} ${
+                current._alias ? chalk.blue('(' + current._alias + ')') : ''
+            }: ${current._description} \n`),
+        message
+    );
+}
+
+/**
  * Run a command.
  *
- * @param {*} workspace Current running workspace.
+ * @param {*} workspace Current workspace.
  * @param {*} args Raw CLI arguments.
  */
 async function commandRunner(workspace, args) {
-    if (!args.slice(2).length) {
-        console.log(
-            chalk.blue(`\nWelcome to Alfred, ladies and gentlemens!' \n`)
-        );
-        program.outputHelp();
-    }
-
+    /**
+     * CLI commands list.
+     *
+     * NPM "commander" package is used for parsing input args.
+     *
+     * @see https://www.npmjs.com/package/commander
+     */
     program
         .command('init <projectName>')
         .alias('i')
         .description('Initialize your project in <projectName> directory.')
-        .option('--force', 'Rewrite files in the target directory')
         .option(
             '--skip-install',
             'When true, does not install dependency packages.'
@@ -55,55 +74,51 @@ async function commandRunner(workspace, args) {
             command.validateAndRun();
         });
 
-    // program
-    //     .command('develop')
-    //     .alias('dev')
-    //     .description('Start local dev server.')
-    //     .option('--port <portNumber>', 'Local dev server port.')
-    //     .option('--proxy <proxyURL>', 'Target proxy URL')
-    //     .action(options => {
-    //         let DevCommand = loadCommand('develop', '../commands/develop');
-    //         let command = new DevCommand({
-    //             workspace,
-    //             options: {
-    //                 proxyOption: options.proxy,
-    //                 port: options.port
-    //             }
-    //         });
-    //         command.validateAndRun();
-    //     });
+    program
+        .command('generate <shematic> <shematicName>')
+        .alias('g')
+        .description('Generates files based on a schematic.')
+        .action((schematic, schematicName) => {
+            let command = new Command({
+                workspace,
+                options: {
+                    schematicName,
+                    schematic
+                },
+                name: 'generate'
+            });
+            command.validateAndRun();
+        });
 
-    // program
-    //     .command('build')
-    //     .alias('b')
-    //     .description('Compiles the app into an output directory.')
-    //     .action(() => {
-    //         let BuildCommand = loadCommand('build', '../commands/build');
-    //         let command = new BuildCommand({
-    //             workspace
-    //         });
-    //         command.validateAndRun();
-    //     });
+    program
+        .command('develop')
+        .alias('dev')
+        .description('Start local dev server.')
+        .option('--port <portNumber>', 'Local dev server port.')
+        .option('--proxy <proxyURL>', 'Target proxy URL')
+        .action(options => {
+            let command = new Command({
+                workspace,
+                options: {
+                    proxyOption: options.proxy,
+                    port: options.port
+                },
+                name: 'develop'
+            });
+            command.validateAndRun();
+        });
 
-    // program
-    //     .command('generate <shematic> <shematicName>')
-    //     .alias('g')
-    //     .description('Generates files based on a schematic')
-    //     .option(
-    //         '-f, --force',
-    //         'When true, forces overwriting of existing files.'
-    //     )
-    //     .action((schematic, schematicName) => {
-    //         let command = new Command({
-    //             workspace,
-    //             options: {
-    //                 schematicName,
-    //                 schematic
-    //             },
-    //             name: 'generate'
-    //         });
-    //         command.validateAndRun();
-    //     });
+    program
+        .command('build')
+        .alias('b')
+        .description('Compiles the app into an output directory.')
+        .action(() => {
+            let command = new Command({
+                workspace,
+                name: 'build'
+            });
+            command.validateAndRun();
+        });
 
     program.arguments('<command>').action(cmd => {
         program.outputHelp();
@@ -115,7 +130,7 @@ async function commandRunner(workspace, args) {
 
     program
         .command('info')
-        .description('print debugging information about your environment')
+        .description('Print debugging information about your environment.')
         .action(() => {
             console.log(chalk.bold('\nEnvironment Info:'));
             require('envinfo')
@@ -134,8 +149,9 @@ async function commandRunner(workspace, args) {
                 .then(console.log);
         });
 
-    program.parse(args);
-
+    /**
+     * Print suggested command in case of no matches.
+     */
     program.arguments('<command>').action(cmd => {
         program.outputHelp();
         console.log();
@@ -143,6 +159,15 @@ async function commandRunner(workspace, args) {
         console.log();
         suggestCommands(cmd);
     });
+
+    /**
+     * Print default CLI message in case of not passed args.
+     */
+    if (!args.slice(2).length) {
+        console.log(startMessage(program.commands));
+    }
+
+    program.parse(args);
 }
 
 module.exports = commandRunner;

@@ -6,15 +6,34 @@ const fs = require('fs');
 
 const copy = promisify(ncp);
 
+/**
+ * Blueprint model class.
+ *
+ * Defines default behavior for schematic instance.
+ */
 class Blueprint {
     constructor(options) {
         this.rename = options.rename || false;
         this.passedName = options.passedName;
-        this.copyPath = options.copyPath;
-        this._parseOptions(options);
+        this.copyPath = this.processCopyPath(options.copyPath);
+        this.blueprint = this.processOptions(options);
     }
 
-    _processBlueprints() {
+    processCopyPath(targetpath) {
+        return targetpath.replace(
+            this.passedName,
+            this.getName(this.passedName)
+        );
+    }
+
+    getName(name) {
+        return name.slice(0, 1).toUpperCase() + name.slice(1);
+    }
+
+    /**
+     * Retrieve current available blueprints.
+     */
+    processBlueprints() {
         let blueprintPath = path.resolve(__dirname, '..', 'blueprints');
         let blueprints = [];
 
@@ -39,8 +58,11 @@ class Blueprint {
         return blueprints;
     }
 
-    _parseOptions(options) {
-        let blueprints = this._processBlueprints();
+    /**
+     * Get blueprint based on pass type.
+     */
+    processOptions(options) {
+        let blueprints = this.processBlueprints();
 
         let blueprint = blueprints.find(
             schematic => schematic.type === options.type
@@ -53,11 +75,14 @@ class Blueprint {
             process.exit();
         }
 
-        this.blueprint = blueprint;
+        return blueprint;
     }
 
-    _validate() {
-        const bluePrintPath = this._getBlueprintPath();
+    /**
+     * Blueprint validation method.
+     */
+    validate() {
+        const bluePrintPath = this.getBlueprintPath();
 
         if (!Blueprint._existsSync(bluePrintPath)) {
             console.log();
@@ -71,13 +96,19 @@ class Blueprint {
         }
     }
 
-    _getBlueprintPath() {
+    /**
+     * Get target blueprint path.
+     */
+    getBlueprintPath() {
         return path.resolve(
             Blueprint.defaultLookupPaths(),
             this.blueprint.path
         );
     }
 
+    /**
+     * Create folder in target project.
+     */
     createFolder() {
         return new Promise((resolve, reject) => {
             fs.mkdir(this.copyPath, err => {
@@ -94,21 +125,43 @@ class Blueprint {
         });
     }
 
-    renameFiles() {
+    processFile(filePath) {
+        fs.readFile(filePath, 'utf8', (err, file) => {
+            if (err) throw err;
+
+            let output = file.replace(
+                /<%= name %>/g,
+                this.getName(this.passedName)
+            );
+
+            fs.writeFile(filePath, output, 'utf8', err => {
+                if (err) return console.log(err);
+            });
+        });
+    }
+
+    /**
+     * Rename blueprint files based on provided name.
+     */
+    processFiles() {
         fs.readdirSync(this.copyPath).forEach(file => {
             let copiedFileName = `${this.copyPath}\\${file.replace(
                 this.blueprint.type,
-                this.passedName
+                this.getName(this.passedName)
             )}`;
             fs.renameSync(`${this.copyPath}\\${file}`, `${copiedFileName}`);
+            this.processFile(copiedFileName);
             console.log(
                 `${chalk.green('CREATE')} ${chalk.white(copiedFileName)}`
             );
         });
     }
 
+    /**
+     * Copy blueprint files into target project folder.
+     */
     async copy() {
-        return copy(this._getBlueprintPath(), this.copyPath, err => {
+        return copy(this.getBlueprintPath(), this.copyPath, err => {
             if (err) {
                 console.log(err);
                 process.exit();
@@ -116,11 +169,14 @@ class Blueprint {
         });
     }
 
+    /**
+     * Main blueprint method.
+     */
     async load() {
-        this._validate();
+        this.validate();
         await this.createFolder();
         await this.copy();
-        if (this.rename) this.renameFiles();
+        if (this.rename) this.processFiles();
     }
 }
 

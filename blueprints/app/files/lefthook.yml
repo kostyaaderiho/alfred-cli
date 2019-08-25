@@ -1,0 +1,9 @@
+pre-commit:
+    parallel: true
+    commands:
+        lint:js:
+            glob: 'src/**/*.js'
+            run: npm run --silent lint:js:fix {staged_files}
+        lint:scss:
+            glob: 'src/**/*.scss'
+            run: npm run --silent lint:scss:fix {staged_files}

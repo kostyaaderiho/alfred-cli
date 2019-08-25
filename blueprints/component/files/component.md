@@ -1,3 +1,3 @@
-# ExampleComponent
+# <%= name %>
 
-Greatest ExampleComponent ever !
+Welcome to <%= name %> component!

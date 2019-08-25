@@ -3,15 +3,14 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.globoforce</groupId>
-        <artifactId>react-application</artifactId>
-        <version>TRUNK-SNAPSHOT</version>
+        <groupId>com.globoforce.reacttemplate</groupId>
+        <artifactId>reacttemplate-ui-parent</artifactId>
+        <version>2019.3.13</version>
     </parent>
-    <groupId>com.globoforce.react-application</groupId>
-    <artifactId>react-application</artifactId>
+    <groupId>com.globoforce.reacttemplate</groupId>
+    <artifactId>reacttemplate</artifactId>
     <packaging>pom</packaging>
-    <version>TRUNK-SNAPSHOT</version>
-    <name>react-application</name>
+    <name>reacttemplate</name>
 
     <properties>
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
@@ -45,7 +44,8 @@
                             <goal>install-node-and-npm</goal>
                         </goals>
                         <configuration>
-                            <nodeVersion>v10.16.2</nodeVersion>
+                            <!-- See https://nodejs.org/en/download/ for latest node and npm (lts) versions -->
+                            <nodeVersion>v10.16.0</nodeVersion>
                             <npmVersion>6.9.0</npmVersion>
                         </configuration>
                     </execution>
@@ -59,13 +59,13 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>unit tests</id>
+                        <id>all tests</id>
                         <goals>
                             <goal>npm</goal>
                         </goals>
                         <phase>test</phase>
                         <configuration>
-                            <arguments>run test:coverage</arguments>
+                            <arguments>run all:test</arguments>
                         </configuration>
                     </execution>
                     <execution>

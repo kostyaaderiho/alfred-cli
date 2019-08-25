@@ -7,52 +7,12 @@ const execa = require('execa');
 const path = require('path');
 const fs = require('fs');
 
+const { PROJECT_SETUP_QUESTIONS } = require('./init.config');
 const Blueprint = require('../models/blueprint');
 const log = console.log;
 
-const PROJECT_SETUP_QUESTIONS = [
-    {
-        type: 'input',
-        name: 'name',
-        message: 'Please provide desired project name.'
-    },
-    {
-        type: 'input',
-        name: 'id',
-        message: 'Please provide desired project id.'
-    },
-    {
-        type: 'input',
-        name: 'title',
-        message:
-            'Please provide desired project title. Used in index.html file.'
-    },
-    {
-        type: 'input',
-        name: 'description',
-        message:
-            'Please provide desired project description. Used in package.json file and <meta type="description"/>'
-    },
-    {
-        type: 'input',
-        name: 'author.name',
-        message: 'Please provide project author name.'
-    },
-    {
-        type: 'input',
-        name: 'author.email',
-        message: 'Please provide project author email.'
-    },
-    {
-        type: 'input',
-        name: 'keywords',
-        message:
-            'Please provide desired project keywords. Use "," to separate them.'
-    }
-];
-
 /**
- * Entry project initialization command.
+ * Project bootstrap command.
  */
 class Init {
     constructor({ options }) {
@@ -62,10 +22,6 @@ class Init {
             '..',
             'blueprints/app'
         );
-        this.options.schematicCopyURL = path.resolve(
-            process.cwd(),
-            options.schematicName
-        );
     }
 
     /**
@@ -73,7 +29,7 @@ class Init {
      */
     async installDependecies() {
         const result = await execa('npm', ['install'], {
-            cwd: this.options.schematicCopyURL
+            cwd: this.options.copyPath
         });
 
         if (result.failed) {
@@ -103,7 +59,7 @@ class Init {
      */
     updateReadmeFile(projectOptions) {
         fs.readFile(
-            `${this.options.schematicCopyURL}/README.md`,
+            `${this.options.copyPath}/README.md`,
             'utf8',
             (err, file) => {
                 if (err) throw err;
@@ -111,7 +67,7 @@ class Init {
                 let output = file.replace(/<%= name %>/g, projectOptions.name);
 
                 fs.writeFile(
-                    `${this.options.schematicCopyURL}/README.md`,
+                    `${this.options.copyPath}/README.md`,
                     output,
                     'utf8',
                     err => {
@@ -145,7 +101,7 @@ class Init {
      * @param {*} projectOptions Provided project configiratop options
      */
     updatePackageJSONFile(projectOptions) {
-        const projectPackageJSON = `${this.options.schematicCopyURL}/package.json`;
+        const projectPackageJSON = `${this.options.copyPath}/package.json`;
 
         fs.readFile(projectPackageJSON, (err, file) => {
             if (err) throw err;
@@ -164,7 +120,7 @@ class Init {
     }
 
     updateProjectCLIFile(projectOptions) {
-        const projectCLIFileNameURL = `${this.options.schematicCopyURL}/alfred.json`;
+        const projectCLIFileNameURL = `${this.options.copyPath}/alfred.json`;
 
         fs.readFile(projectCLIFileNameURL, (err, file) => {
             if (err) throw err;
@@ -183,7 +139,7 @@ class Init {
     }
 
     updatePOMFile(projectOptions) {
-        let pomFileURL = path.resolve(this.options.schematicCopyURL, 'pom.xml');
+        let pomFileURL = path.resolve(this.options.copyPath, 'pom.xml');
         const { parseString } = xml2js;
 
         if (fs.existsSync(pomFileURL)) {
@@ -211,7 +167,7 @@ class Init {
         }
     }
 
-    _processFiles(passedOptions) {
+    processFiles(passedOptions) {
         this.updatePackageJSONFile(passedOptions);
         this.updateProjectCLIFile(passedOptions);
         this.updateReadmeFile(passedOptions);
@@ -226,13 +182,13 @@ class Init {
                 title: 'Process project files.',
                 task: () => {
                     let bp = new Blueprint({
-                        copyPath: this.options.schematicCopyURL,
                         passedName: this.options.schematicName,
+                        copyPath: this.options.copyPath,
                         rename: false,
                         type: 'app'
                     });
                     bp.load().then(() => {
-                        this._processFiles(passedOptions);
+                        this.processFiles(passedOptions);
                     });
                 }
             },
@@ -261,7 +217,7 @@ class Init {
         } else {
             log(
                 `Serve your application: ${chalk.blue(
-                    `cd ${this.options.targetDirectory}`
+                    `cd ${this.options.schematicName}`
                 )} & run ${chalk.blue('alfred develop')}`
             );
         }

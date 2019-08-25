@@ -10,5 +10,17 @@ module.exports = [
         scope: 'in',
         isSchematicCommand: true,
         path: './commands/generate.js'
+    },
+    {
+        name: 'develop',
+        scope: 'in',
+        isSchematicCommand: false,
+        path: './commands/develop.js'
+    },
+    {
+        name: 'build',
+        scope: 'in',
+        isSchematicCommand: false,
+        path: './commands/build.js'
     }
 ];

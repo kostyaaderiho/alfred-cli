@@ -1,19 +1,17 @@
-const Command = require('../models/command');
 const dotenv = require('dotenv');
 const chalk = require('chalk');
 const path = require('path');
 const fs = require('fs');
 
 /**
- * Setup webpackDevServer from target repository with set configiration options
+ * Run webpackDevServer command.
  *
- * @see webpackDevServer documentation: https://github.com/webpack/docs/wiki/webpack-dev-server
+ * @see webpackDevServer: https://github.com/webpack/docs/wiki/webpack-dev-server
  */
-class DevCommand extends Command {
-    constructor(args) {
-        super(args);
-        this.commandName = 'develop';
-        this.scope = 'in';
+class DevCommand {
+    constructor({ workspace, options }) {
+        this.options = options;
+        this.workspace = workspace;
     }
 
     validateParams() {
@@ -34,7 +32,7 @@ class DevCommand extends Command {
         const { PROXY_TARGET_DEFAULT, PROXY_ENDPOINTS } = require(path.resolve(
             __dirname,
             '..',
-            'config/webpack/proxy.js'
+            'config/webpack/webpackDevServer.js'
         ));
         const proxyEnvFilePath = path.resolve(process.cwd(), '.env');
 

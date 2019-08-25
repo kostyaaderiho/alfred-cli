@@ -1,20 +1,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import './component.scss';
+import './<%= name %>.scss';
 
 /**
- * Example component.
+ * <%= name %> component.
  */
-export default function ExampleComponent() {
+export default function <%= name %>() {
     return <div>I'm example component.</div>;
 }
 
 /**
- * Example component default props.
+ * <%= name %> component default props.
  */
-ExampleComponent.defaultProps = {};
+<%= name %>.defaultProps = {};
 
 /**
- * Example component propTypes defenision.
+ * <%= name %> component propTypes defenision.
  */
-ExampleComponent.propTypes = {};
+<%= name %>.propTypes = {};
