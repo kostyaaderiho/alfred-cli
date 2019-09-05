@@ -10,6 +10,5 @@ module.exports = {
     },
     testPathIgnorePatterns: IGNORE_PATTERNS,
     coveragePathIgnorePatterns: IGNORE_PATTERNS,
-    setupFilesAfterEnv: ['@testing-library/react/cleanup-after-each'],
     coverageReporters: ['text', 'lcov']
 };

@@ -35,4 +35,4 @@ function checkNodeVersion(wanted, id) {
     }
 }
 
-require('../lib/init.js');
+require('../lib/cli/init.js');
