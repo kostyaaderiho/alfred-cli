@@ -7,7 +7,7 @@
         "alfred": "bin/alfred"
     },
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "node tests/runner"
     },
     "repository": {
         "type": "git",
@@ -15,6 +15,7 @@
     },
     "keywords": [
         "javacript",
+        "alfred",
         "CLI"
     ],
     "author": "kanstantsin_adzerykha@epam.com",
@@ -37,10 +38,19 @@
         "xml2js": "^0.4.19"
     },
     "devDependencies": {
+        "capture-exit": "^2.0.0",
+        "chai": "^4.2.0",
+        "chai-as-promised": "^7.1.1",
+        "co": "^4.6.0",
         "eslint": "^6.1.0",
         "eslint-config-workhuman-base": "^1.0.2",
         "eslint-plugin-import": "^2.18.2",
-        "prettier": "^1.18.2"
+        "exists-sync": "^0.1.0",
+        "fs-extra": "^8.1.0",
+        "mocha": "^6.2.0",
+        "prettier": "^1.18.2",
+        "rsvp": "^4.8.5",
+        "walk-sync": "^2.0.2"
     },
     "engines": {
         "node": ">=8.9"

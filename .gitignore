@@ -21,6 +21,9 @@ node_modules
 # Compiled application
 dist
 
+# tmp
+tmp
+
 # Node.js directory
 node
 
