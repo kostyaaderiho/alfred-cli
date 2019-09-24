@@ -1,27 +1,22 @@
-const captureExit = require('capture-exit');
-captureExit.captureExit();
-
-const glob = require('glob');
 const Mocha = require('mocha');
+const glob = require('glob');
 const RSVP = require('rsvp');
 
-let root = 'tests/{unit,e2e,acceptance}';
-let mocha = new Mocha({
-    timeout: 5000,
-    retries: 1
-});
-let testFiles = glob.sync(`${root}/**/*.test.js`);
-
-function addFiles(mocha, files) {
-    files = typeof files === 'string' ? glob.sync(root + files) : files;
-    files.forEach(mocha.addFile.bind(mocha));
-}
-
+/**
+ * Mocha run test method.
+ */
 function runMocha() {
+    let root = 'tests/{unit,e2e,acceptance}';
+    let testFiles = glob.sync(`${root}/**/*.test.js`);
+    let mocha = new Mocha({
+        timeout: 5000,
+        retries: 1
+    });
+    let files =
+        typeof testFiles === 'string' ? glob.sync(root + testFiles) : testFiles;
+    files.forEach(mocha.addFile.bind(mocha));
+
     console.time('CLI tests running time');
-
-    addFiles(mocha, testFiles);
-
     mocha.run(failures => {
         console.timeEnd('CLI tests running time');
         process.exit(failures);
