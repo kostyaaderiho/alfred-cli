@@ -1,6 +1,9 @@
 pre-commit:
     parallel: true
     commands:
+        prettier:
+            glob: 'src/**/*'
+            run: npm run --silent prettier:fix {staged_files}
         lint:js:
             glob: 'src/**/*.js'
             run: npm run --silent lint:js:fix {staged_files}

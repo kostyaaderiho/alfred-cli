@@ -1,13 +1,15 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import App from './App';
+import LandingPage from './LandingPage';
 
 test('It should render correctly', async () => {
-    const { container } = render(<App />);
+    const { container } = render(<LandingPage />);
 
     expect(container.firstChild).toMatchInlineSnapshot(`
         <div
-          class="app a-typography"
-        />
+          class="landingPage"
+        >
+          Landing page
+        </div>
     `);
 });

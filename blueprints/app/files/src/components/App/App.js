@@ -1,25 +1,38 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+import { Route, HashRouter } from 'react-router-dom';
+
+import LandingPage from '~/components/LandingPage/LandingPage';
+
 import './App.scss';
 
-import 'focus-visible';
-
-import ExampleCounter from '~/components/ExampleCounter/ExampleCounter';
-
 /**
- * App root page.
+ * App root container.
  */
 export default function App() {
     return (
-        <div className="app a-typography">
-            <div className="app-content">
-                <h1 className="app-headline a-typography--headline1">
-                    Welcome to your new application !
-                </h1>
-                <h2 className="a-typography--headline2">
-                    In this application you can use this breathtaking counter
-                </h2>
-                <ExampleCounter />
+        <HashRouter hashType="hashbang">
+            <div className="app a-typography">
+                <Route exact path=":clientName" component={LandingPage} />
             </div>
-        </div>
+        </HashRouter>
     );
 }
+
+App.propTypes = {
+    /**
+     * Unique application identifier that used commonly in "Global Nav",
+     * to track active application.
+     */
+    applicationId: PropTypes.string.isRequired,
+
+    /**
+     * Authentification data from JWT token.
+     */
+    authenticationData: PropTypes.object.isRequired,
+
+    /**
+     * Currently logged in person (Current User).
+     */
+    loggedInPerson: PropTypes.object.isRequired
+};

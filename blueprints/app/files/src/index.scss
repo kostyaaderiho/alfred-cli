@@ -12,3 +12,12 @@ html {
 *::after {
     box-sizing: inherit;
 }
+
+// Application level bug fix for elements
+// that recieve focus by mouse click.
+// See more: https://jira.globoforce.com/browse/REC-1310
+//           https://github.com/WICG/focus-visible
+
+.js-focus-visible :focus:not([data-focus-visible-added]) {
+    outline: none;
+}
